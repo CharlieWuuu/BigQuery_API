@@ -2,12 +2,22 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { BigqueryModule } from './bigquery/bigquery.module';
-import { BigqueryController } from './bigquery/bigquery.controller';
-import { BigqueryService } from './bigquery/bigquery.service';
+import { HotelModule } from './hotel/hotel.module';
+import { FoodModule } from './food/food.module';
+import { ScheduleModule } from './schedule/schedule.module';
+import { ViewModule } from './view/view.module';
+import { QuerylistModule } from './querylist/querylist.module';
 
 @Module({
-  imports: [BigqueryModule],
-  controllers: [AppController, BigqueryController],
-  providers: [AppService, BigqueryService],
+  imports: [
+    BigqueryModule,
+    ViewModule,
+    HotelModule,
+    FoodModule,
+    ScheduleModule,
+    QuerylistModule,
+  ],
+  controllers: [AppController], // 只留 AppController
+  providers: [AppService], // 只留 AppService
 })
 export class AppModule {}
