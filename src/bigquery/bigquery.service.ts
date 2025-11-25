@@ -25,7 +25,9 @@ export class BigqueryService {
     return `This action removes a #${id} bigquery`;
   }
 
-  private bigquery = new BigQuery();
+  private bigquery = new BigQuery({
+    projectId: process.env.GOOGLE_CLOUD_PROJECT,
+  });
 
   async query(sql: string) {
     try {
