@@ -6,23 +6,8 @@ import { ApiOperation } from '@nestjs/swagger';
 export class BigqueryController {
   constructor(private readonly bigqueryService: BigqueryService) {}
 
-  // @Post()
-  // create(@Body() createBigqueryDto: CreateBigqueryDto) {
-  //   return this.bigqueryService.create(createBigqueryDto);
-  // }
-
-  // @Get()
-  // findAll() {
-  //   return this.bigqueryService.findAll();
-  // }
-
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.bigqueryService.findOne(+id);
-  // }
-
   @Get('query')
-  @ApiOperation({ summary: '查詢 BigQuery 資料' })
+  @ApiOperation({ summary: '✅ 查詢 BigQuery 資料' })
   async queryBigQuery() {
     try {
       const sql =
@@ -34,35 +19,8 @@ export class BigqueryController {
     }
   }
 
-  // @Post('view')
-  // @ApiOperation({ summary: '插入 view 資料到 BigQuery' })
-  // insertView(@Body() body: any) {
-  //   return this.bigqueryService.insert('Bestour_AI.TEST_VIEW_DB', body);
-  // }
-
-  // @Post('food')
-  // @ApiOperation({ summary: '插入 food 資料到 BigQuery' })
-  // insertFood(@Body() body: any) {
-  //   return this.bigqueryService.insert('Bestour_AI.TEST_FOOD_DB', body);
-  // }
-
-  // @Post('hotel')
-  // @ApiOperation({ summary: '插入 hotel 資料到 BigQuery' })
-  // insertHotel(@Body() body: any) {
-  //   return this.bigqueryService.insert('Bestour_AI.TEST_HOTEL_DB', body);
-  // }
-
-  // @Post('schedule_cleared')
-  // @ApiOperation({ summary: '插入 schedule_cleared 資料到 BigQuery' })
-  // insertScheduleCleared(@Body() body: any) {
-  //   return this.bigqueryService.insert(
-  //     'Bestour_AI.TEST_SCHEDULE_CLEARED_DB',
-  //     body,
-  //   );
-  // }
-
   @Delete()
-  @ApiOperation({ summary: '刪除過時的資訊' })
+  @ApiOperation({ summary: '刪除過時資訊' })
   remove(@Param('id') id: string) {
     return this.bigqueryService.remove(+id);
   }

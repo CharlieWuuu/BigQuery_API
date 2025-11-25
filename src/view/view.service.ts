@@ -12,7 +12,6 @@ export class ViewService {
   }
 
   async enrich(data: ViewDto[]) {
-    console.log(data);
     const result = await dataEnrich(data);
     return result;
   }
@@ -63,7 +62,7 @@ export class ViewService {
     try {
       const projectId = process.env.GOOGLE_CLOUD_PROJECT;
       const datasetId = process.env.BIGQUERY_DATASET as string;
-      const tableId = 'TEST_VIEW_DB';
+      const tableId = 'VIEW_DB';
       console.log(`準備 merge ${rows.length} 筆資料到 ${tableId}`);
 
       // 建立臨時資料表名稱

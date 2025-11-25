@@ -273,15 +273,24 @@ export function dataCleaner(raw_data_list: QuerylistDto[]): Result {
       name: raw_data.name,
       id: raw_data.id,
       img: raw_data.img,
+      price: parseInt(raw_data.price as string),
       city: raw_data.city,
       slogan: raw_data.slogan,
       day: raw_data.day,
-      travel: Array.isArray(raw_data.travel) ? raw_data.travel : undefined,
-      travel_no: raw_data.travel_no,
+      travel: Array.isArray(raw_data.travel)
+        ? raw_data.travel.map((t) => ({
+            date: t.date,
+            travel_no: t.travel_no,
+            price: t.price ? parseFloat(t.price.toString()) : 0,
+          }))
+        : undefined,
+      // travel_no: raw_data.travel_no,
       schedule: schedule,
       tags: [],
     });
   }
+
+  console.log(result);
 
   return {
     view: deduplicate(result.view, 'id'),

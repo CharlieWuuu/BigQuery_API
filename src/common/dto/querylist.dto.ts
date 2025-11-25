@@ -9,7 +9,7 @@ export class TravelDto {
   travel_no?: string;
 
   @ApiPropertyOptional({ example: '33800' })
-  price?: string;
+  price?: string | number;
 }
 
 export class QuerylistDto {
@@ -23,7 +23,7 @@ export class QuerylistDto {
   id?: string;
 
   @ApiPropertyOptional({ example: '33800' })
-  price?: string;
+  price?: string | number;
 
   @ApiPropertyOptional({
     example:

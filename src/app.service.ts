@@ -4,108 +4,301 @@ import { ViewDto } from './common/dto/view.dto';
 import type { ScheduleSplitDto } from 'src/common/type/schedule.type';
 import { HotelDto } from './common/dto/hotel.dto';
 import { FoodDto } from './common/dto/food.dto';
+import { QueryListNew } from 'src/common/type/schedule.type';
 
-const data = [
-  {
-    name: '【特別企劃‧四國相撲５日】雷歐瑪森之湯、小豆島觀景纜車、大步危遊船、道後溫泉散策',
-    id: '5534',
-    price: '45900',
-    img: 'https://hsihung.ittms.com.tw/intranet/travel_list/images/5534.jpg',
-    city: '日本 松山',
-    slogan: '',
-    day: '5',
-    travel: [{ date: '12/10', travel_no: 'TAK05CI251210A', price: '45900' }],
-  },
-  {
-    name: '【特惠輕旅大阪５日】日本環球影城、京都清水寺、大阪城公園、下鴨神社、錦市場、黑毛和牛',
-    id: '27449',
-    price: '21800',
-    img: 'https://hsihung.ittms.com.tw/intranet/travel_list/images/27449.jpg',
-    city: '日本 京都',
-    slogan: '',
-    day: '5',
-    travel: [
-      { date: '12/14', travel_no: 'OSA05VZ251214Z', price: '21800' },
-      { date: '01/03', travel_no: 'OSA05VZ260103Z', price: '25800' },
-      { date: '01/06', travel_no: 'OSA05VZ260106Z', price: '26800' },
-      { date: '01/10', travel_no: 'OSA05VZ260110Z', price: '27800' },
-      { date: '01/13', travel_no: 'OSA05VZ260113Z', price: '26800' },
-      { date: '01/17', travel_no: 'OSA05VZ260117Z', price: '27800' },
-    ],
-  },
-  {
-    name: '【特選捷克波蘭１０日】維利奇卡鹽礦、布拉格城堡區、遊船、華沙、克拉克夫、OUTLET',
-    id: '26605',
-    price: '64800',
-    img: 'https://hsihung.ittms.com.tw/intranet/travel_list/images/26605.jpg',
-    city: '歐洲 捷克',
-    slogan: '東歐',
-    day: '10',
-    travel: [
-      { date: '01/13', travel_no: 'CZV10CA260113W', price: '64800' },
-      { date: '01/27', travel_no: 'CZV10CA260127W', price: '64800' },
-      { date: '02/24', travel_no: 'CZV10CA260224W', price: '64800' },
-      { date: '03/17', travel_no: 'CZV10CA260317W', price: '64800' },
-      { date: '03/24', travel_no: 'CZV10CA260324W', price: '64800' },
-    ],
-  },
-];
+let pagecount: number = 0;
 
 @Injectable()
 export class AppService {
+  private async updateDateChunk(pageid: number) {
+    let result_querylist: QueryListNew;
+    let result: QuerylistDto[] = [];
+    let rawData: ScheduleSplitDto;
+    let enrichedViews: ViewDto[] = [];
+    let enrichedHotels: HotelDto[] = [];
+    let enrichedFoods: FoodDto[] = [];
+
+    // 步驟1: 取得所有行程資料
+    try {
+      console.log(`📝 步驟1: 開始取得行程資料第${pageid}頁...`);
+      const res_querylist = await fetch(
+        `http://localhost:3000/querylist?pageid=${pageid}`,
+        {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        },
+      );
+
+      if (!res_querylist.ok) {
+        throw new Error(
+          `HTTP ${res_querylist.status}: ${res_querylist.statusText}`,
+        );
+      }
+
+      result_querylist = (await res_querylist.json()) as QueryListNew;
+      pagecount = result_querylist.pagecount;
+      console.log(`✅ 步驟1完成: 取得行程資料，總頁數 ${pagecount}`);
+    } catch (error) {
+      console.error('❌ 步驟1失敗:', error.message);
+      throw new Error(`步驟1失敗: ${error.message}`);
+    }
+
+    // 步驟2: 取得詳細行程資料
+    try {
+      console.log(
+        '📝 步驟2: 開始取得所有行程的詳細行程資料...',
+        result_querylist,
+      );
+      const res = await fetch('http://localhost:3000/schedule/addSchedule', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(result_querylist),
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+      }
+
+      result = (await res.json()) as QuerylistDto[];
+      console.log(`✅ 步驟2完成: 取得 ${result?.length || 0} 筆詳細行程資料`);
+
+      // ✅ 檢查資料內容
+      if (!result || result.length === 0) {
+        console.warn('⚠️ 步驟2警告: 沒有取得到詳細行程資料');
+      } else {
+        console.log('🔍 第一筆資料範例:', {
+          name: result[0]?.name,
+          hasSchedule: !!result[0]?.schedule,
+          scheduleLength: result[0]?.schedule?.length || 0,
+        });
+      }
+    } catch (error) {
+      console.error('❌ 步驟2失敗:', error.message);
+      throw new Error(`步驟2失敗: ${error.message}`);
+    }
+
+    // 步驟3: 行程資料切分
+    try {
+      console.log('📝 步驟3: 開始進行行程資料切分...');
+      const res_split = await fetch(
+        'http://localhost:3000/schedule/splitData',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(result),
+        },
+      );
+
+      if (!res_split.ok) {
+        throw new Error(`HTTP ${res_split.status}: ${res_split.statusText}`);
+      }
+
+      rawData = (await res_split.json()) as ScheduleSplitDto;
+      console.log('✅ 步驟3完成: 行程資料切分完成', {
+        view: rawData.view?.length || 0,
+        hotel: rawData.hotel?.length || 0,
+        food: rawData.food?.length || 0,
+        querylist: rawData.querylist?.length || 0,
+      });
+    } catch (error) {
+      console.error('❌ 步驟3失敗:', error.message);
+      throw new Error(`步驟3失敗: ${error.message}`);
+    }
+
+    // 步驟4: 景點資料補強
+    try {
+      console.log('📝 步驟4: 開始進行景點資料補強...');
+      const res_view = await fetch('http://localhost:3000/view/enrich', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: rawData.view }), // ✅ 修正格式
+      });
+
+      if (!res_view.ok) {
+        throw new Error(`HTTP ${res_view.status}: ${res_view.statusText}`);
+      }
+
+      enrichedViews = (await res_view.json()) as ViewDto[];
+      console.log(`✅ 步驟4完成: 景點資料補強完成 ${enrichedViews.length} 筆`);
+    } catch (error) {
+      console.error('❌ 步驟4失敗:', error.message);
+      console.log('⚠️ 使用空陣列繼續處理');
+      enrichedViews = []; // 失敗時使用空陣列
+    }
+
+    // 步驟5: 飯店資料補強
+    try {
+      console.log('📝 步驟5: 開始進行飯店資料補強...');
+      const res_hotel = await fetch('http://localhost:3000/hotel/enrich', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: rawData.hotel }), // ✅ 修正格式
+      });
+
+      if (!res_hotel.ok) {
+        throw new Error(`HTTP ${res_hotel.status}: ${res_hotel.statusText}`);
+      }
+
+      enrichedHotels = (await res_hotel.json()) as HotelDto[];
+      console.log(`✅ 步驟5完成: 飯店資料補強完成 ${enrichedHotels.length} 筆`);
+    } catch (error) {
+      console.error('❌ 步驟5失敗:', error.message);
+      console.log('⚠️ 使用空陣列繼續處理');
+      enrichedHotels = []; // 失敗時使用空陣列
+    }
+
+    // 步驟6: 餐飲資料補強
+    try {
+      console.log('📝 步驟6: 開始進行餐飲資料補強...');
+      const res_food = await fetch('http://localhost:3000/food/enrich', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: rawData.food }), // ✅ 修正格式
+      });
+
+      if (!res_food.ok) {
+        throw new Error(`HTTP ${res_food.status}: ${res_food.statusText}`);
+      }
+
+      enrichedFoods = (await res_food.json()) as FoodDto[];
+      console.log(`✅ 步驟6完成: 餐飲資料補強完成 ${enrichedFoods.length} 筆`);
+    } catch (error) {
+      console.error('❌ 步驟6失敗:', error.message);
+      console.log('⚠️ 使用空陣列繼續處理');
+      enrichedFoods = []; // 失敗時使用空陣列
+    }
+
+    // 步驟7: 景點資料上傳到 BigQuery
+    try {
+      console.log('📝 步驟7: 開始進行景點資料上傳到 BigQuery...');
+      if (enrichedViews.length > 0) {
+        const res_view_enrich = await fetch(
+          'http://localhost:3000/view/bigquery',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data: enrichedViews }), // ✅ 修正格式
+          },
+        );
+
+        if (!res_view_enrich.ok) {
+          throw new Error(
+            `HTTP ${res_view_enrich.status}: ${res_view_enrich.statusText}`,
+          );
+        }
+
+        const result_view_post = await res_view_enrich.json();
+        console.log('✅ 步驟7完成: 景點資料上傳完成', result_view_post);
+      } else {
+        console.log('⚠️ 步驟7跳過: 沒有景點資料需要上傳');
+      }
+    } catch (error) {
+      console.error('❌ 步驟7失敗:', error.message);
+      // 不中斷流程，繼續下一步
+    }
+
+    // 步驟8: 飯店資料上傳到 BigQuery
+    try {
+      console.log('📝 步驟8: 開始進行飯店資料上傳到 BigQuery...');
+      if (enrichedHotels.length > 0) {
+        const res_hotel_enrich = await fetch(
+          'http://localhost:3000/hotel/bigquery',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data: enrichedHotels }), // ✅ 修正格式
+          },
+        );
+
+        if (!res_hotel_enrich.ok) {
+          throw new Error(
+            `HTTP ${res_hotel_enrich.status}: ${res_hotel_enrich.statusText}`,
+          );
+        }
+
+        const result_hotel_post = await res_hotel_enrich.json();
+        console.log('✅ 步驟8完成: 飯店資料上傳完成', result_hotel_post);
+      } else {
+        console.log('⚠️ 步驟8跳過: 沒有飯店資料需要上傳');
+      }
+    } catch (error) {
+      console.error('❌ 步驟8失敗:', error.message);
+      // 不中斷流程，繼續下一步
+    }
+
+    // 步驟9: 餐飲資料上傳到 BigQuery
+    try {
+      console.log('📝 步驟9: 開始進行餐飲資料上傳到 BigQuery...');
+      if (enrichedFoods.length > 0) {
+        const res_food_enrich = await fetch(
+          'http://localhost:3000/food/bigquery',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data: enrichedFoods }), // ✅ 修正格式
+          },
+        );
+
+        if (!res_food_enrich.ok) {
+          throw new Error(
+            `HTTP ${res_food_enrich.status}: ${res_food_enrich.statusText}`,
+          );
+        }
+
+        const result_food_post = await res_food_enrich.json();
+        console.log('✅ 步驟9完成: 餐飲資料上傳完成', result_food_post);
+      } else {
+        console.log('⚠️ 步驟9跳過: 沒有餐飲資料需要上傳');
+      }
+    } catch (error) {
+      console.error('❌ 步驟9失敗:', error.message);
+      // 不中斷流程，繼續下一步
+    }
+
+    // 步驟10: 行程資料上傳到 BigQuery
+    try {
+      console.log('📝 步驟10: 開始進行行程資料上傳到 BigQuery...');
+      if (rawData.querylist && rawData.querylist.length > 0) {
+        const res_schedule_enrich = await fetch(
+          'http://localhost:3000/schedule/bigquery',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data: rawData.querylist }), // ✅ 修正格式
+          },
+        );
+
+        console.log('rawData.querylist', rawData.querylist);
+        console.log('rawData.querylist', rawData.querylist[0].travel);
+        console.log('rawData.querylist', rawData.querylist[0].schedule);
+
+        if (!res_schedule_enrich.ok) {
+          throw new Error(
+            `HTTP ${res_schedule_enrich.status}: ${res_schedule_enrich.statusText}`,
+          );
+        }
+
+        const result_schedule_post = await res_schedule_enrich.json();
+        console.log('✅ 步驟10完成: 行程資料上傳完成', result_schedule_post);
+      } else {
+        console.log('⚠️ 步驟10跳過: 沒有行程資料需要上傳');
+      }
+    } catch (error) {
+      console.error('❌ 步驟10失敗:', error.message);
+      // 不中斷流程
+    }
+  }
+
   async updateData(): Promise<string> {
-    // 1. /schedule GET query_list
-    // 等太久暫時用假資料
+    let pageid: number = 1;
+    console.log(`\n🚀 開始處理第 ${pageid} 頁資料...\n`);
+    await this.updateDateChunk(pageid);
 
-    // 2. /schedule POST query_list，每個 list 打 API 取得 schedule，嵌入 query_list 並且回傳
-    const res = await fetch('http://localhost:3000/schedule', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    const result = (await res.json()) as QuerylistDto[];
-
-    // 3. /schedule POST query_list_with_schedule，回傳 view, hotel, food, schedule_cleared
-
-    const res_split = await fetch('http://localhost:3000/schedule/splitData', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(result),
-    });
-    const rawData = (await res_split.json()) as ScheduleSplitDto;
-    console.log('Raw data received:', rawData);
-
-    // 4. /view POST view，回傳利用 AI enriched 後的 view 資料
-    const res_view = await fetch('http://localhost:3000/view/enrich', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(rawData.view),
-    });
-    const enrichedViews = (await res_view.json()) as ViewDto[];
-    console.log('Enriched views received:', enrichedViews);
-
-    // 5. /hotel POST hotel，回傳利用 AI enriched 後的 hotel 資料
-    const res_hotel = await fetch('http://localhost:3000/hotel/enrich', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(rawData.hotel),
-    });
-    const enrichedHotels = (await res_hotel.json()) as HotelDto[];
-    console.log('Enriched hotels received:', enrichedHotels);
-
-    // 6. /food POST food，回傳利用 AI enriched 後的 food 資料
-    const res_food = await fetch('http://localhost:3000/food/enrich', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(rawData.food),
-    });
-    const enrichedFoods = (await res_food.json()) as FoodDto[];
-    console.log('Enriched foods received:', enrichedFoods);
-
-    // 7. /bigquery POST view, hotel, food, schedule_cleared 到 BigQuery，回傳 OK or Error
-    // 8. /bigquery POST view, hotel, food, schedule_cleared 到 BigQuery，回傳 OK or Error
-    // 9. /bigquery POST view, hotel, food, schedule_cleared 到 BigQuery，回傳 OK or Error
-    // 10. /bigquery POST view, hotel, food, schedule_cleared 到 BigQuery，回傳 OK or Error
-    return '資料已更新';
+    for (pageid = 2; pageid <= pagecount; pageid++) {
+      console.log(`\n🚀 開始處理第 ${pageid} 頁資料...\n`);
+      await this.updateDateChunk(pageid);
+    }
+    console.log('🎉 所有資料更新完成！');
+    return '資料已更新完成';
   }
 }

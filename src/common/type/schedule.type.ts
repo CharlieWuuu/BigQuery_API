@@ -9,3 +9,9 @@ export type ScheduleSplitDto = {
   food: FoodDto[];
   querylist: QuerylistDto[];
 };
+
+export type QueryListNew = {
+  status: string;
+  pagecount: number;
+  data: QuerylistDto[];
+};

@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { CreateFoodDto } from './dto/create-food.dto';
 import { FoodDto } from 'src/common/dto/food.dto';
 import { dataEnrich } from './data_enrich';
 import { BigQuery } from '@google-cloud/bigquery';
@@ -17,7 +16,7 @@ export class FoodService {
     const result = await dataEnrich(data);
     return result;
   }
-  create(createFoodDto: CreateFoodDto) {
+  create() {
     return 'This action adds a new food';
   }
 
