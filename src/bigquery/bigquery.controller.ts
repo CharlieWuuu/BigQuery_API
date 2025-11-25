@@ -1,7 +1,5 @@
-import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Param, Delete } from '@nestjs/common';
 import { BigqueryService } from './bigquery.service';
-import { CreateBigqueryDto } from './dto/create-bigquery.dto';
-import { UpdateBigqueryDto } from './dto/update-bigquery.dto';
 import { ApiOperation } from '@nestjs/swagger';
 
 @Controller('bigquery')

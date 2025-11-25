@@ -186,27 +186,27 @@ function processSingleItinerary(
     // B. 提取飯店
     let hotels: HotelDto[] = [];
     const daily_hotel: HotelDto[] = [];
-    if (Array.isArray(day_info.hotel)) {
-      hotels = day_info.hotel;
-      for (const h of hotels) {
-        const h_name = h.name || '';
-        daily_hotel.push(h);
 
-        if (isValidSpot(h_name) && !h_name.includes('請自理')) {
-          const h_key = h_name;
-          if (!hotels.find((hotel) => hotel.name === h_key)) {
-            hotels.push({
-              name: h_name,
-              url: h.url || '',
-              city: '',
-              tags: [],
-              lat: 0,
-              lng: 0,
-            });
-          }
+    hotels = day_info.hotel?.data as HotelDto[];
+    for (const h of hotels) {
+      const h_name = h.name || '';
+      daily_hotel.push(h);
+
+      if (isValidSpot(h_name) && !h_name.includes('請自理')) {
+        if (!hotel.find((this_hotel) => this_hotel.name === h_name)) {
+          hotel.push({
+            name: h_name,
+            url: h.url || '',
+            city: '',
+            tags: [],
+            lat: 0,
+            lng: 0,
+          });
         }
       }
     }
+
+    console.log(hotel);
 
     // C. 提取餐廳
     const daily_food: string[] = [];
@@ -222,6 +222,7 @@ function processSingleItinerary(
           name: cleanPoiName(meal_desc),
           raw_text: meal_desc,
           city: '',
+          type: meal_type,
         };
         food.push(food_map[concept_key]);
       }
@@ -232,13 +233,16 @@ function processSingleItinerary(
       date: day_info.date || '',
       title: cleanPoiName(day_title),
       route: daily_route,
-      hotel: daily_hotel,
+      hotel: {
+        status: '1',
+        data: daily_hotel,
+      },
       food: daily_food || [],
       abstract_1: day_info.abstract_1 || '',
       abstract_2: day_info.abstract_2 || [],
     });
   }
-  console.log(view, hotel, food, schedule);
+
   return [view, hotel, food, schedule];
 }
 
@@ -261,7 +265,7 @@ export function dataCleaner(raw_data_list: QuerylistDto[]): Result {
 
   for (const raw_data of raw_data_list) {
     const [view, hotel, food, schedule] = processSingleItinerary(raw_data);
-    console.log(view, hotel, food, schedule);
+
     result.view.push(...Object.values(view));
     result.hotel.push(...Object.values(hotel));
     result.food.push(...food);

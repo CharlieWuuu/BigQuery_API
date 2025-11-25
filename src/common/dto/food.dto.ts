@@ -7,4 +7,6 @@ export class FoodDto {
   raw_text?: string;
   @ApiPropertyOptional({ example: '' })
   city?: string;
+  @ApiPropertyOptional({ example: 'breakfast' })
+  type?: 'breakfast' | 'lunch' | 'dinner';
 }

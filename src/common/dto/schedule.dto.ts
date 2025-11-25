@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { ViewDto } from './view.dto';
-import { HotelDto } from './hotel.dto';
+import { HotelArrayDto } from './hotel.dto';
 
 export class Abstract2Dto {
   @ApiPropertyOptional({ example: 'VJPNOSA17' })
@@ -47,8 +47,8 @@ export class ScheduleDto {
   @ApiPropertyOptional({ type: [ViewDto] })
   view?: ViewDto[];
 
-  @ApiPropertyOptional({ type: [HotelDto] })
-  hotel?: HotelDto[];
+  @ApiPropertyOptional()
+  hotel?: HotelArrayDto;
 
   @ApiPropertyOptional({ example: [''] })
   food?: string[];

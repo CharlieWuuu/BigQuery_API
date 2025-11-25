@@ -8,7 +8,7 @@ export class AppController {
 
   @Get('updateData')
   @ApiOperation({ summary: '資料更新的總入口' })
-  updateData(): string {
+  async updateData(): Promise<string> {
     return this.appService.updateData();
   }
 }
