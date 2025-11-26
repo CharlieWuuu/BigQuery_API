@@ -17,12 +17,13 @@ export class AppService {
     let enrichedViews: ViewDto[] = [];
     let enrichedHotels: HotelDto[] = [];
     let enrichedFoods: FoodDto[] = [];
+    const port = process.env.PORT || 8080;
 
     // 步驟1: 取得所有行程資料
     try {
       console.log(`📝 步驟1: 開始取得行程資料第${pageid}頁...`);
       const res_querylist = await fetch(
-        `http://localhost:3000/querylist?pageid=${pageid}`,
+        `http://localhost:${port}/querylist?pageid=${pageid}`,
         {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
@@ -49,7 +50,7 @@ export class AppService {
         '📝 步驟2: 開始取得所有行程的詳細行程資料...',
         result_querylist,
       );
-      const res = await fetch('http://localhost:3000/schedule/addSchedule', {
+      const res = await fetch(`http://localhost:${port}/schedule/addSchedule`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(result_querylist),
@@ -81,7 +82,7 @@ export class AppService {
     try {
       console.log('📝 步驟3: 開始進行行程資料切分...');
       const res_split = await fetch(
-        'http://localhost:3000/schedule/splitData',
+        `http://localhost:${port}/schedule/splitData`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -108,7 +109,7 @@ export class AppService {
     // 步驟4: 景點資料補強
     try {
       console.log('📝 步驟4: 開始進行景點資料補強...');
-      const res_view = await fetch('http://localhost:3000/view/enrich', {
+      const res_view = await fetch(`http://localhost:${port}/view/enrich`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ data: rawData.view }), // ✅ 修正格式
@@ -129,7 +130,7 @@ export class AppService {
     // 步驟5: 飯店資料補強
     try {
       console.log('📝 步驟5: 開始進行飯店資料補強...');
-      const res_hotel = await fetch('http://localhost:3000/hotel/enrich', {
+      const res_hotel = await fetch(`http://localhost:${port}/hotel/enrich`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ data: rawData.hotel }), // ✅ 修正格式
@@ -150,7 +151,7 @@ export class AppService {
     // 步驟6: 餐飲資料補強
     try {
       console.log('📝 步驟6: 開始進行餐飲資料補強...');
-      const res_food = await fetch('http://localhost:3000/food/enrich', {
+      const res_food = await fetch(`http://localhost:${port}/food/enrich`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ data: rawData.food }), // ✅ 修正格式
@@ -173,7 +174,7 @@ export class AppService {
       console.log('📝 步驟7: 開始進行景點資料上傳到 BigQuery...');
       if (enrichedViews.length > 0) {
         const res_view_enrich = await fetch(
-          'http://localhost:3000/view/bigquery',
+          `http://localhost:${port}/view/bigquery`,
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -202,7 +203,7 @@ export class AppService {
       console.log('📝 步驟8: 開始進行飯店資料上傳到 BigQuery...');
       if (enrichedHotels.length > 0) {
         const res_hotel_enrich = await fetch(
-          'http://localhost:3000/hotel/bigquery',
+          `http://localhost:${port}/hotel/bigquery`,
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -231,7 +232,7 @@ export class AppService {
       console.log('📝 步驟9: 開始進行餐飲資料上傳到 BigQuery...');
       if (enrichedFoods.length > 0) {
         const res_food_enrich = await fetch(
-          'http://localhost:3000/food/bigquery',
+          `http://localhost:${port}/food/bigquery`,
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -260,7 +261,7 @@ export class AppService {
       console.log('📝 步驟10: 開始進行行程資料上傳到 BigQuery...');
       if (rawData.querylist && rawData.querylist.length > 0) {
         const res_schedule_enrich = await fetch(
-          'http://localhost:3000/schedule/bigquery',
+          `http://localhost:${port}/schedule/bigquery`,
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
