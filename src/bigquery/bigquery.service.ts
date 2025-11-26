@@ -25,8 +25,16 @@ export class BigqueryService {
     return `This action removes a #${id} bigquery`;
   }
 
-  private bigquery = new BigQuery({
-    projectId: process.env.GOOGLE_CLOUD_PROJECT,
+  private rawBase64 = process.env.GOOGLE_SERVICE_ACCOUNT_KEY!;
+  private jsonString = Buffer.from(this.rawBase64, 'base64').toString('utf8');
+  private json = JSON.parse(this.jsonString);
+
+  private bigquery: BigQuery = new BigQuery({
+    projectId: this.json.project_id,
+    credentials: {
+      client_email: this.json.client_email,
+      private_key: this.json.private_key.replace(/\\n/g, '\n'), // 這裡保留替換，因為 private_key 內部仍是轉義字符
+    },
   });
 
   async query(sql: string) {

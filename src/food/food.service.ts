@@ -5,11 +5,17 @@ import { BigQuery } from '@google-cloud/bigquery';
 
 @Injectable()
 export class FoodService {
-  private readonly bigquery: BigQuery;
+  private rawBase64 = process.env.GOOGLE_SERVICE_ACCOUNT_KEY!;
+  private jsonString = Buffer.from(this.rawBase64, 'base64').toString('utf8');
+  private json = JSON.parse(this.jsonString);
 
-  constructor() {
-    this.bigquery = new BigQuery();
-  }
+  private bigquery: BigQuery = new BigQuery({
+    projectId: this.json.project_id,
+    credentials: {
+      client_email: this.json.client_email,
+      private_key: this.json.private_key.replace(/\\n/g, '\n'), // 這裡保留替換，因為 private_key 內部仍是轉義字符
+    },
+  });
 
   async enrich(data: FoodDto[]): Promise<FoodDto[]> {
     console.log(data);
