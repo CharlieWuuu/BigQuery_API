@@ -30,7 +30,7 @@ async function bootstrap() {
   console.log(`Application is running on: ${await app.getUrl()}`);
   console.log(`Server running on http://localhost:${port}`);
   console.log(`Swagger API 文件: http://localhost:${port}/api`);
-
+  console.log(`測試`);
 }
 
 bootstrap();
