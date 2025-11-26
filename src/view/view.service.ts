@@ -22,48 +22,6 @@ export class ViewService {
     return result;
   }
 
-  // async insert(table: string, rows: ViewDto[]) {
-  //   try {
-  //     // 支援 table 格式: dataset.table 或 project.dataset.table
-  //     const parts = table.split('.');
-  //     let datasetId: string;
-  //     let tableId: string;
-
-  //     if (parts.length === 2) {
-  //       [datasetId, tableId] = parts;
-  //     } else if (parts.length === 3) {
-  //       [, datasetId, tableId] = parts;
-  //     } else {
-  //       throw new Error(
-  //         'table 格式錯誤，請用 dataset.table 或 project.dataset.table',
-  //       );
-  //     }
-
-  //     console.log(`準備插入 ${rows.length} 筆資料到 ${datasetId}.${tableId}`);
-
-  //     const result = await this.bigquery
-  //       .dataset(datasetId)
-  //       .table(tableId)
-  //       .insert(rows);
-
-  //     console.log(`✅ 成功插入 ${rows.length} 筆資料到 BigQuery`);
-  //     return {
-  //       success: true,
-  //       insertedRows: rows.length,
-  //       result,
-  //     };
-  //   } catch (error) {
-  //     console.error('BigQuery 插入失敗:', error);
-
-  //     // 如果是部分插入失敗，顯示詳細錯誤
-  //     if (error.name === 'PartialFailureError') {
-  //       console.error('部分插入失敗的詳細錯誤:', error.errors);
-  //     }
-
-  //     throw error;
-  //   }
-  // }
-
   async merge(rows: ViewDto[]) {
     try {
       const projectId = process.env.GOOGLE_CLOUD_PROJECT;

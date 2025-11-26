@@ -54,7 +54,7 @@ export class FoodController {
   @Post('/bigquery')
   @ApiOperation({ summary: '✅ 上傳資料到 BigQuery' })
   async merge(@Body() body: { data: FoodDto[] }) {
-    console.log('Received data for BigQuery merge:', body);
+    console.log('✅ 上傳資料到 BigQuery');
     if (!body?.data || body.data.length === 0) {
       console.log('⚠️ 沒有傳入飯店資料，使用測試資料');
       return this.foodService.merge([]); // 手動測試時使用假資料

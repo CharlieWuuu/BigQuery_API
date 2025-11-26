@@ -1030,7 +1030,7 @@ export class ScheduleController {
     },
   })
   async merge(@Body() body: { data: QuerylistDto[] }) {
-    console.log('Received data for BigQuery merge:', body);
+    console.log('Received data for BigQuery merge:');
     if (!body?.data || body.data.length === 0) {
       console.log('⚠️ 沒有傳入飯店資料，使用測試資料');
       return this.scheduleService.merge([]); // 手動測試時使用假資料

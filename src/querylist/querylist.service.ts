@@ -6,7 +6,7 @@ export class QuerylistService {
   async get(pageid: number) {
     try {
       const res = await fetch(
-        `https://travelapi.besttour.com.tw/api/query_List_new.asp?pageid=${pageid}&pagesize=1`,
+        `https://travelapi.besttour.com.tw/api/query_List_new.asp?pageid=${pageid}&pagesize=3`,
       );
 
       let text = await res.text();

@@ -88,7 +88,7 @@ export class ViewController {
   @Post('/enrich')
   @ApiOperation({ summary: '✅ 以 AI 補足資料細節' })
   async enrich(@Body() body?: { data?: ViewDto[] }): Promise<ViewDto[]> {
-    console.log('Received data for enrichment:', body?.data?.[0]);
+    console.log('Received data for enrichment:');
     if (!body?.data || body.data.length === 0) {
       console.log('⚠️ 沒有傳入景點資料，回傳空陣列');
       return [];
@@ -100,7 +100,7 @@ export class ViewController {
   @Post('/bigquery')
   @ApiOperation({ summary: '✅ 上傳資料到 BigQuery' })
   async merge(@Body() body: { data: ViewDto[] }) {
-    console.log('Received data for BigQuery merge:', body);
+    console.log('Received data for BigQuery merge:');
     if (!body?.data || body.data.length === 0) {
       console.log('⚠️ 沒有傳入景點資料，使用測試資料');
       return this.viewService.merge([]); // 手動測試時使用假資料

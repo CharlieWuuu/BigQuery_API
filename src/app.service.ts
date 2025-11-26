@@ -46,10 +46,7 @@ export class AppService {
 
     // 步驟2: 取得詳細行程資料
     try {
-      console.log(
-        '📝 步驟2: 開始取得所有行程的詳細行程資料...',
-        result_querylist,
-      );
+      console.log('📝 步驟2: 開始取得所有行程的詳細行程資料...');
       const res = await fetch(`http://localhost:${port}/schedule/addSchedule`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -62,17 +59,6 @@ export class AppService {
 
       result = (await res.json()) as QuerylistDto[];
       console.log(`✅ 步驟2完成: 取得 ${result?.length || 0} 筆詳細行程資料`);
-
-      // ✅ 檢查資料內容
-      if (!result || result.length === 0) {
-        console.warn('⚠️ 步驟2警告: 沒有取得到詳細行程資料');
-      } else {
-        console.log('🔍 第一筆資料範例:', {
-          name: result[0]?.name,
-          hasSchedule: !!result[0]?.schedule,
-          scheduleLength: result[0]?.schedule?.length || 0,
-        });
-      }
     } catch (error) {
       console.error('❌ 步驟2失敗:', error.message);
       throw new Error(`步驟2失敗: ${error.message}`);
@@ -189,7 +175,7 @@ export class AppService {
         }
 
         const result_view_post = await res_view_enrich.json();
-        console.log('✅ 步驟7完成: 景點資料上傳完成', result_view_post);
+        console.log('✅ 步驟7完成: 景點資料上傳完成');
       } else {
         console.log('⚠️ 步驟7跳過: 沒有景點資料需要上傳');
       }
@@ -218,7 +204,7 @@ export class AppService {
         }
 
         const result_hotel_post = await res_hotel_enrich.json();
-        console.log('✅ 步驟8完成: 飯店資料上傳完成', result_hotel_post);
+        console.log('✅ 步驟8完成: 飯店資料上傳完成');
       } else {
         console.log('⚠️ 步驟8跳過: 沒有飯店資料需要上傳');
       }
@@ -247,7 +233,7 @@ export class AppService {
         }
 
         const result_food_post = await res_food_enrich.json();
-        console.log('✅ 步驟9完成: 餐飲資料上傳完成', result_food_post);
+        console.log('✅ 步驟9完成: 餐飲資料上傳完成');
       } else {
         console.log('⚠️ 步驟9跳過: 沒有餐飲資料需要上傳');
       }
@@ -280,7 +266,7 @@ export class AppService {
         }
 
         const result_schedule_post = await res_schedule_enrich.json();
-        console.log('✅ 步驟10完成: 行程資料上傳完成', result_schedule_post);
+        console.log('✅ 步驟10完成: 行程資料上傳完成');
       } else {
         console.log('⚠️ 步驟10跳過: 沒有行程資料需要上傳');
       }

@@ -62,7 +62,7 @@ async function enrichBatchWithGemini(
       return originalData;
     }
 
-    console.log(`[Gemini 回傳原始內容]:\n${text}`);
+    console.log(`[Gemini 已回傳]:`);
 
     // 解析 JSON
     const jsonText = extractJsonFromMarkdown(text);

@@ -206,8 +206,6 @@ function processSingleItinerary(
       }
     }
 
-    console.log(hotel);
-
     // C. 提取餐廳
     const daily_food: string[] = [];
     for (const meal_type of ['breakfast', 'lunch', 'dinner'] as MealType[]) {
@@ -289,8 +287,6 @@ export function dataCleaner(raw_data_list: QuerylistDto[]): Result {
       tags: [],
     });
   }
-
-  console.log(result);
 
   return {
     view: deduplicate(result.view, 'id'),
