@@ -7,6 +7,7 @@ import { FoodModule } from './food/food.module';
 import { ScheduleModule } from './schedule/schedule.module';
 import { ViewModule } from './view/view.module';
 import { QuerylistModule } from './querylist/querylist.module';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { QuerylistModule } from './querylist/querylist.module';
     FoodModule,
     ScheduleModule,
     QuerylistModule,
+    AiModule,
   ],
   controllers: [AppController], // 只留 AppController
   providers: [AppService], // 只留 AppService
