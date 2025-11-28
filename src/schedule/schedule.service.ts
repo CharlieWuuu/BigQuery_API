@@ -8,7 +8,7 @@ import type {
 } from 'src/common/type/schedule.type';
 import { BigQuery } from '@google-cloud/bigquery';
 import { setTimeout as wait } from 'timers/promises';
-import { GoogleCredentialJson } from 'src/common/type/googleCredentail.type';
+import { GoogleCredentialJson } from 'src/common/type/googleCredential.type';
 
 @Injectable()
 export class ScheduleService {

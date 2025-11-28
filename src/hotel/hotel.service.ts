@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { HotelDto } from 'src/common/dto/hotel.dto';
 import { BigQuery } from '@google-cloud/bigquery';
-import { GoogleCredentialJson } from 'src/common/type/googleCredentail.type';
+import { GoogleCredentialJson } from 'src/common/type/googleCredential.type';
 import { dataEnrich } from 'src/common/utils/data_enrich';
 
 @Injectable()

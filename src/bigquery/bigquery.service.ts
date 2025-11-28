@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { BigQuery } from '@google-cloud/bigquery';
-import { GoogleCredentialJson } from 'src/common/type/googleCredentail.type';
+import { GoogleCredentialJson } from 'src/common/type/googleCredential.type';
 
 @Injectable()
 export class BigqueryService {

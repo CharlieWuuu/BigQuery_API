@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { GoogleAuth } from 'google-auth-library';
-import type { GoogleCredentialJson } from 'src/common/type/googleCredentail.type';
+import type { GoogleCredentialJson } from 'src/common/type/googleCredential.type';
 
 @Injectable()
 export class AiService {

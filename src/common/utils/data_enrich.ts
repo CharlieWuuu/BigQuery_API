@@ -66,10 +66,11 @@ async function fetchAI<T>(batch: T[], type: string): Promise<T[]> {
     console.log('[呼叫 Gemini API] 開始...');
 
     // 用套件呼叫
+    // NODE_TLS_REJECT_UNAUTHORIZED="0"
     const result = await fetch(process.env.HSIHUNG_API_AI as string, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: '123' }),
+      body: JSON.stringify({ data: prompt }),
     });
     const response = (await result.json()) as AiResponse;
     const text = response.data.text;

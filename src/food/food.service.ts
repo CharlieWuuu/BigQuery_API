@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { FoodDto } from 'src/common/dto/food.dto';
 import { BigQuery } from '@google-cloud/bigquery';
-import { GoogleCredentialJson } from 'src/common/type/googleCredentail.type';
+import { GoogleCredentialJson } from 'src/common/type/googleCredential.type';
 
 @Injectable()
 export class FoodService {

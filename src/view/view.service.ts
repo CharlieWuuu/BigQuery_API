@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ViewDto } from 'src/common/dto/view.dto';
 import { BigQuery } from '@google-cloud/bigquery';
-import type { GoogleCredentialJson } from 'src/common/type/googleCredentail.type';
+import type { GoogleCredentialJson } from 'src/common/type/googleCredential.type';
 
 @Injectable()
 export class ViewService {
