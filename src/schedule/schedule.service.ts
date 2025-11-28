@@ -8,12 +8,13 @@ import type {
 } from 'src/common/type/schedule.type';
 import { BigQuery } from '@google-cloud/bigquery';
 import { setTimeout as wait } from 'timers/promises';
+import { GoogleCredentialJson } from 'src/common/type/googleCredentail.type';
 
 @Injectable()
 export class ScheduleService {
   private rawBase64 = process.env.GOOGLE_SERVICE_ACCOUNT_KEY!;
   private jsonString = Buffer.from(this.rawBase64, 'base64').toString('utf8');
-  private json = JSON.parse(this.jsonString);
+  private json = JSON.parse(this.jsonString) as GoogleCredentialJson;
 
   private bigquery: BigQuery = new BigQuery({
     projectId: this.json.project_id,

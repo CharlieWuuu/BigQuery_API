@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { ViewDto } from 'src/common/dto/view.dto';
-import { dataEnrich } from './data_enrich';
 import { BigQuery } from '@google-cloud/bigquery';
+import type { GoogleCredentialJson } from 'src/common/type/googleCredentail.type';
 
 @Injectable()
 export class ViewService {
   private rawBase64 = process.env.GOOGLE_SERVICE_ACCOUNT_KEY!;
   private jsonString = Buffer.from(this.rawBase64, 'base64').toString('utf8');
-  private json = JSON.parse(this.jsonString);
+  private json = JSON.parse(this.jsonString) as GoogleCredentialJson;
 
   private bigquery: BigQuery = new BigQuery({
     projectId: this.json.project_id,
@@ -16,11 +16,6 @@ export class ViewService {
       private_key: this.json.private_key.replace(/\\n/g, '\n'), // 這裡保留替換，因為 private_key 內部仍是轉義字符
     },
   });
-
-  async enrich(data: ViewDto[]) {
-    const result = await dataEnrich(data);
-    return result;
-  }
 
   async merge(rows: ViewDto[]) {
     try {
@@ -59,15 +54,10 @@ export class ViewService {
         WHEN NOT MATCHED THEN
           INSERT (id, name, raw_name, description, city, tags, lat, lng)
           VALUES (source.id, source.name, source.raw_name, source.description,
-                  source.city, source.tags, source.lat, source.lng)
-      `;
+                  source.city, source.tags, source.lat, source.lng)`;
 
       console.log('執行 MERGE 查詢...');
-      const [job] = await this.bigquery.createQueryJob({
-        query: mergeQuery,
-        location: 'US', // 或你的資料集位置
-      });
-
+      const [job] = await this.bigquery.createQueryJob({ query: mergeQuery });
       const [rows_affected] = await job.getQueryResults();
 
       // 3. 清理臨時表

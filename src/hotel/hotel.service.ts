@@ -1,26 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import { HotelDto } from 'src/common/dto/hotel.dto';
-import { dataEnrich } from './data_enrich';
 import { BigQuery } from '@google-cloud/bigquery';
+import { GoogleCredentialJson } from 'src/common/type/googleCredentail.type';
+import { dataEnrich } from 'src/common/utils/data_enrich';
 
 @Injectable()
 export class HotelService {
   private rawBase64 = process.env.GOOGLE_SERVICE_ACCOUNT_KEY!;
   private jsonString = Buffer.from(this.rawBase64, 'base64').toString('utf8');
-  private json = JSON.parse(this.jsonString);
-
+  private json = JSON.parse(this.jsonString) as GoogleCredentialJson;
   private bigquery: BigQuery = new BigQuery({
     projectId: this.json.project_id,
     credentials: {
       client_email: this.json.client_email,
-      private_key: this.json.private_key.replace(/\\n/g, '\n'), // 這裡保留替換，因為 private_key 內部仍是轉義字符
+      private_key: this.json.private_key.replace(/\\n/g, '\n'),
     },
   });
 
   async enrich(data: HotelDto[]): Promise<HotelDto[]> {
-    console.log(data);
-    const result = await dataEnrich(data);
-    return result;
+    return dataEnrich(data, 'hotel');
   }
 
   async merge(rows: HotelDto[]) {

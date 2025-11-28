@@ -6,7 +6,7 @@ import { ApiBody, ApiOperation } from '@nestjs/swagger';
 export class AiController {
   constructor(private readonly aiService: AiService) {}
 
-  @Post()
+  @Post('/detail')
   @ApiOperation({ summary: '✅ Vertex AI' })
   @ApiBody({
     description: '要處理的文字內容',
@@ -22,7 +22,7 @@ export class AiController {
       required: ['text'],
     },
   })
-  ai(@Body() body: { text: string }) {
-    return this.aiService.ai(body.text);
+  ai_tour(@Body() body: { text: string }) {
+    return this.aiService.ai_tour(body.text);
   }
 }

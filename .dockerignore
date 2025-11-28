@@ -1,0 +1,56 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 建置輸出
+dist/
+build/
+
+# Service Account 金鑰（敏感資料）
+custom-graph-328814-*.json
+
+# 開發工具
+.vscode/
+.idea/
+
+# 測試
+coverage/
+*.lcov
+
+# 日誌
+logs/
+*.log
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Git
+.git/
+.gitignore
+
+# OS
+.DS_Store
+Thumbs.db
+
+# TypeScript
+*.tsbuildinfo
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# 文件
+README.md
+*.md
+
+# 測試檔案
+test/
+*.spec.ts
+*.e2e-spec.ts
+jest.config.js

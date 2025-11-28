@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Delete } from '@nestjs/common';
 import { BigqueryService } from './bigquery.service';
 import { ApiOperation } from '@nestjs/swagger';
 
@@ -15,14 +15,14 @@ export class BigqueryController {
       const data = await this.bigqueryService.query(sql);
       return { message: '查詢成功', data };
     } catch (error) {
-      return { message: '查詢失敗', error: error.message as string };
+      return { message: '查詢失敗', error: (error as Error).message };
     }
   }
 
   @Delete()
-  @ApiOperation({ summary: '刪除過時資訊' })
-  remove(@Param('id') id: string) {
-    return this.bigqueryService.remove(+id);
+  @ApiOperation({ summary: '⛔ 刪除過時資訊' })
+  remove() {
+    return '開發中...';
   }
 
   // 1. /schedule GET query_list

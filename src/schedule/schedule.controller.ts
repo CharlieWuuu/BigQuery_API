@@ -946,7 +946,7 @@ export class ScheduleController {
   constructor(private readonly scheduleService: ScheduleService) {}
 
   @Get('/bigquery')
-  @ApiOperation({ summary: '查詢 BigQuery 資料' })
+  @ApiOperation({ summary: '⛔ 查詢 BigQuery 資料' })
   get() {
     return '開發中...';
   }

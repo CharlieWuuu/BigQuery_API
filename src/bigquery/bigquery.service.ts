@@ -1,33 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { CreateBigqueryDto } from './dto/create-bigquery.dto';
-import { UpdateBigqueryDto } from './dto/update-bigquery.dto';
 import { BigQuery } from '@google-cloud/bigquery';
+import { GoogleCredentialJson } from 'src/common/type/googleCredentail.type';
 
 @Injectable()
 export class BigqueryService {
-  create(createBigqueryDto: CreateBigqueryDto) {
-    return 'This action adds a new bigquery';
-  }
-
-  findAll() {
-    return `This action returns all bigquery`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} bigquery`;
-  }
-
-  update(id: number, updateBigqueryDto: UpdateBigqueryDto) {
-    return `This action updates a #${id} bigquery`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} bigquery`;
-  }
-
   private rawBase64 = process.env.GOOGLE_SERVICE_ACCOUNT_KEY!;
   private jsonString = Buffer.from(this.rawBase64, 'base64').toString('utf8');
-  private json = JSON.parse(this.jsonString);
+  private json = JSON.parse(this.jsonString) as GoogleCredentialJson;
 
   private bigquery: BigQuery = new BigQuery({
     projectId: this.json.project_id,
