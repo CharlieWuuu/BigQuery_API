@@ -9,6 +9,8 @@ import type {
 import { BigQuery } from '@google-cloud/bigquery';
 import { setTimeout as wait } from 'timers/promises';
 import { GoogleCredentialJson } from 'src/common/type/googleCredential.type';
+import axios from 'axios';
+import type { ItineraryDetail } from 'src/common/type/itinerary.type';
 
 @Injectable()
 export class ScheduleService {
@@ -82,18 +84,6 @@ export class ScheduleService {
   // 將 QuerylistDto 轉成 RawData
   splitData(fullScheduleData: QuerylistDto[]): ScheduleSplitDto {
     return dataCleaner(fullScheduleData);
-  }
-
-  findAll() {
-    return `This action returns all schedule`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} schedule`;
-  }
-
-  update(id: number) {
-    return `This action updates a #${id} schedule`;
   }
 
   async merge(rows: QuerylistDto[]) {
@@ -222,6 +212,216 @@ export class ScheduleService {
     } catch (error) {
       console.error('BigQuery merge 失敗:', error);
       throw error;
+    }
+  }
+
+  async itinerary(itineraryArr: number[]) {
+    console.log('取得行程資料:', itineraryArr);
+    const result_Arr: ItineraryDetail[] = [];
+
+    const getItinerary = async (travel_id: number) => {
+      const res = await axios.request({
+        method: 'GET',
+        url: 'https://travelapi.besttour.com.tw/api/tour/v3/itinerary/',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'MzQwODA1LDIwMjUvMTIvMDEsJmRmMiotNQ==',
+        },
+        data: { travel_id: travel_id },
+      });
+
+      const data = res.data.data[0] as ItineraryDetail;
+      result_Arr.push({
+        travel_id: data.travel_id,
+        travel_no: data.travel_no,
+        travel_day: data.travel_day,
+        travel_date: data.travel_date,
+        country: data.country,
+        takeoff_city: data.takeoff_city,
+        travel_image_url: data.travel_image_url,
+        travel_abstract: data.travel_abstract,
+        travel_city: data.travel_city,
+        price_adult: data.price_adult,
+        order_person: data.order_person ?? 0,
+        unpay_person: data.unpay_person ?? 0,
+        RQ_person: data.RQ_person ?? 0,
+        fly_data: [...data.fly_data],
+        day_content: [...data.day_content],
+      });
+    };
+
+    for (const travel_id of itineraryArr) {
+      await getItinerary(travel_id);
+      await wait(200); // 每次請求後等待 200 毫秒
+    }
+
+    return result_Arr;
+  }
+
+  async mergeItinerary(rows: ItineraryDetail[]) {
+    try {
+      const projectId = process.env.GOOGLE_CLOUD_PROJECT;
+      const datasetId = process.env.BIGQUERY_DATASET as string;
+      const tableId = 'ITINERARY_DB';
+
+      // 建立臨時資料表名稱
+      const tempTableId = `${tableId}_temp_${Date.now()}`;
+      const tempTable = this.bigquery.dataset(datasetId).table(tempTableId);
+
+      // 1. 先插入資料到臨時表
+      await tempTable.create({
+        schema: {
+          fields: [
+            { name: 'travel_id', type: 'INTEGER', mode: 'REQUIRED' },
+            { name: 'travel_no', type: 'STRING', mode: 'REQUIRED' },
+            { name: 'travel_day', type: 'INTEGER', mode: 'NULLABLE' },
+            { name: 'travel_date', type: 'STRING', mode: 'NULLABLE' },
+            { name: 'country', type: 'STRING', mode: 'NULLABLE' },
+            { name: 'takeoff_city', type: 'STRING', mode: 'NULLABLE' },
+            { name: 'travel_image_url', type: 'STRING', mode: 'NULLABLE' },
+            { name: 'travel_abstract', type: 'STRING', mode: 'NULLABLE' },
+            { name: 'travel_city', type: 'STRING', mode: 'NULLABLE' },
+            { name: 'price_adult', type: 'INTEGER', mode: 'NULLABLE' },
+            { name: 'order_person', type: 'INTEGER', mode: 'NULLABLE' },
+            { name: 'unpay_person', type: 'INTEGER', mode: 'NULLABLE' },
+            { name: 'RQ_person', type: 'INTEGER', mode: 'NULLABLE' },
+            {
+              name: 'fly_data',
+              type: 'RECORD',
+              mode: 'REPEATED',
+              fields: [
+                { name: 'fly_no', type: 'STRING', mode: 'NULLABLE' },
+                { name: 'fly_date', type: 'STRING', mode: 'NULLABLE' },
+                { name: 'dep_city_code', type: 'STRING', mode: 'NULLABLE' },
+                { name: 'arr_city_code', type: 'STRING', mode: 'NULLABLE' },
+                { name: 'dep_tm', type: 'STRING', mode: 'NULLABLE' },
+                { name: 'arr_tm', type: 'STRING', mode: 'NULLABLE' },
+                { name: 'fly_line', type: 'STRING', mode: 'NULLABLE' },
+                { name: 'dep_city', type: 'STRING', mode: 'NULLABLE' },
+                { name: 'arr_city', type: 'STRING', mode: 'NULLABLE' },
+              ],
+            },
+            {
+              name: 'day_content',
+              type: 'RECORD',
+              mode: 'REPEATED',
+              fields: [
+                { name: 'day', type: 'STRING', mode: 'NULLABLE' },
+                { name: 'breakfast', type: 'STRING', mode: 'NULLABLE' },
+                { name: 'lunch', type: 'STRING', mode: 'NULLABLE' },
+                { name: 'dinner', type: 'STRING', mode: 'NULLABLE' },
+                { name: 'title', type: 'STRING', mode: 'NULLABLE' },
+                { name: 'content', type: 'STRING', mode: 'NULLABLE' },
+                { name: 'special_note', type: 'STRING', mode: 'NULLABLE' },
+                { name: 'remind', type: 'STRING', mode: 'NULLABLE' },
+                { name: 'hotel_flag', type: 'INTEGER', mode: 'NULLABLE' },
+                {
+                  name: 'view_content',
+                  type: 'RECORD',
+                  mode: 'REPEATED',
+                  fields: [
+                    { name: 'list', type: 'INTEGER', mode: 'NULLABLE' },
+                    { name: 'view_title', type: 'STRING', mode: 'NULLABLE' },
+                    { name: 'view_id', type: 'STRING', mode: 'NULLABLE' },
+                    { name: 'view_content', type: 'STRING', mode: 'NULLABLE' },
+                    { name: 'view_image', type: 'STRING', mode: 'NULLABLE' },
+                    { name: 'view_memo', type: 'STRING', mode: 'NULLABLE' },
+                  ],
+                },
+                {
+                  name: 'hotel_content',
+                  type: 'RECORD',
+                  mode: 'REPEATED',
+                  fields: [
+                    { name: 'list', type: 'INTEGER', mode: 'NULLABLE' },
+                    { name: 'hotel_name', type: 'STRING', mode: 'NULLABLE' },
+                    { name: 'hotel_url', type: 'STRING', mode: 'NULLABLE' },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      });
+
+      await tempTable.insert(rows);
+
+      // 2. 執行 MERGE 語句
+      const mergeQuery = `
+      MERGE \`${projectId}.${datasetId}.${tableId}\` AS target
+      USING \`${projectId}.${datasetId}.${tempTableId}\` AS source
+      ON target.travel_id = source.travel_id
+      WHEN MATCHED THEN
+        UPDATE SET
+          travel_no = source.travel_no,
+          travel_day = source.travel_day,
+          travel_date = source.travel_date,
+          country = source.country,
+          takeoff_city = source.takeoff_city,
+          travel_image_url = source.travel_image_url,
+          travel_abstract = source.travel_abstract,
+          travel_city = source.travel_city,
+          price_adult = source.price_adult,
+          order_person = source.order_person,
+          unpay_person = source.unpay_person,
+          RQ_person = source.RQ_person,
+          fly_data = source.fly_data,
+          day_content = source.day_content
+      WHEN NOT MATCHED THEN
+        INSERT (
+          travel_id, travel_no, travel_day, travel_date, country, takeoff_city,
+          travel_image_url, travel_abstract, travel_city, price_adult,
+          order_person, unpay_person, RQ_person, fly_data, day_content
+        )
+        VALUES (
+          source.travel_id, source.travel_no, source.travel_day, source.travel_date, source.country, source.takeoff_city,
+          source.travel_image_url, source.travel_abstract, source.travel_city, source.price_adult,
+          source.order_person, source.unpay_person, source.RQ_person, source.fly_data, source.day_content
+        )
+    `;
+
+      console.log('執行 MERGE 查詢...');
+      const [job] = await this.bigquery.createQueryJob({
+        query: mergeQuery,
+        location: 'US', // 或你的資料集位置
+      });
+
+      const [rows_affected] = await job.getQueryResults();
+
+      // 3. 清理臨時表
+      await tempTable.delete();
+
+      console.log(`成功 merge 資料到 BigQuery`);
+      return {
+        success: true,
+        processedRows: rows.length,
+        affectedRows: rows_affected.length,
+        operation: 'merge',
+      };
+    } catch (error) {
+      console.error('BigQuery mergeItinerary 失敗:', error);
+      throw error;
+    }
+  }
+
+  async deleteItinerary() {
+    try {
+      const projectId = process.env.GOOGLE_CLOUD_PROJECT;
+      const datasetId = process.env.BIGQUERY_DATASET as string;
+      const tableId = 'ITINERARY_DB';
+
+      const sql = `DELETE FROM \`${projectId}.${datasetId}.${tableId}\` WHERE PARSE_DATE('%Y/%m/%d', travel_date) < CURRENT_DATE()
+    `;
+
+      console.log('執行 BigQuery 查詢...');
+      const [job] = await this.bigquery.createQueryJob({ query: sql });
+      await job.getQueryResults();
+
+      console.log(`成功刪除過時資料`);
+      return { status: '00', msg: 'Success' };
+    } catch (error) {
+      console.error('BigQuery 刪除失敗:', error);
+      return { status: '99', msg: 'Error', error: (error as Error).message };
     }
   }
 }

@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, Delete } from '@nestjs/common';
 import { ScheduleService } from './schedule.service';
 // import { ScheduleDto } from 'src/common/dto/schedule.dto';
-import { ApiOperation, ApiBody, ApiQuery } from '@nestjs/swagger';
+import { ApiOperation, ApiBody } from '@nestjs/swagger';
 import { QuerylistDto } from 'src/common/dto/querylist.dto';
 import type { QueryListNew } from 'src/common/type/schedule.type';
+import { ItineraryDetail } from 'src/common/type/itinerary.type';
 
 // const testData = [
 //   {
@@ -939,6 +940,339 @@ import type { QueryListNew } from 'src/common/type/schedule.type';
 //   },
 // ];
 
+const itineraryExample = [
+  {
+    travel_id: 841827,
+    travel_no: 'CNX05BR260101Z',
+    travel_day: 5,
+    travel_date: '2026/01/01',
+    country: '泰國',
+    takeoff_city: '桃園',
+    travel_image_url:
+      'https://hsihung.ittms.com.tw/intranet/travel_list/images/23490.jpg',
+    travel_abstract: '',
+    travel_city: '清萊,清邁',
+    price_adult: 26888,
+    order_person: 14,
+    unpay_person: 1,
+    RQ_person: 0,
+    fly_data: [
+      {
+        fly_no: 'BR257',
+        fly_date: '2026/01/01',
+        dep_city_code: 'TPE',
+        arr_city_code: 'CNX',
+        dep_tm: '07:20',
+        arr_tm: '10:35',
+        fly_line: '長榮航空',
+        dep_city: '桃園',
+        arr_city: '清邁',
+      },
+      {
+        fly_no: 'BR258',
+        fly_date: '2026/01/05',
+        dep_city_code: 'CNX',
+        arr_city_code: 'TPE',
+        dep_tm: '11:50',
+        arr_tm: '16:30',
+        fly_line: '長榮航空',
+        dep_city: '清邁',
+        arr_city: '桃園',
+      },
+    ],
+    day_content: [
+      {
+        day: '1',
+        breakfast: '機上套餐',
+        lunch: '泰北獨特菜餚 KHAO SOI 泰北咖哩雞麵 B.250',
+        dinner: '方便逛街，敬請自理',
+        title: '桃園／清邁-雙龍寺-The One Nimman寧曼創意購物街＋Maya百貨-清邁',
+        content: '',
+        special_note: '',
+        remind: '',
+        hotel_flag: 0,
+        view_content: [
+          {
+            list: 1,
+            view_title: '清邁',
+            view_id: 'ATHICNX01',
+            view_content:
+              '位於曼谷北方700公里，地處海拔300公尺高的山谷，地形為四面環山，是個大型盆地、平均溫度在攝氏二十五度，也是泰國第二個首都。也曾是泰國史上第一個獨立國家－藍納泰(Lanna Thai)王朝的首都、宗教、文化及貿易中心，保有許多的文化遺產，又有「藝術建築之寶殿堂」之稱謂。',
+            view_image:
+              'https://hsihung.ittms.com.tw/intranet/view/images/ATHICNX01.jpg',
+            view_memo: '',
+          },
+          {
+            list: 2,
+            view_title:
+              '清邁雙龍寺 Wat Phra That Doi Suthep (含立式斜坡電梯纜車)',
+            view_id: 'VTHICNX16',
+            view_content:
+              '位於素帖山國家公園金光閃閃的雙龍寺，我們將安排您搭乘纜車上山去，三百階梯免煩惱。雙龍寺也是泰國的一座上座部佛教寺廟，距離清邁市15公里，座落在海拔1053公尺的高山上，傳說有位錫蘭高僧帶了幾顆佛舍利到泰國，交由白象選址後人們就建了舍利塔，又由於山路兩旁有兩隻金龍守護，所以叫雙龍寺。',
+            view_image:
+              'https://hsihung.ittms.com.tw/intranet/view/images/VTHICNX16.jpg',
+            view_memo:
+              '※雙龍寺每逢週末及泰國假日，上山設有交通管制，遊覽車不能入園，如團體適逢該區間，則另安排改搭雙排車上山參觀，特此說明。\r\n※在泰國寺廟因宗教信仰入內參觀時皆會有相關服裝規定，如果您的儀容不符規定，則售票處提供沙龍租借，一次約20~50銖，將沙龍為上腰間，遮住下半身即可。',
+          },
+          {
+            list: 3,
+            view_title: '尼曼文創聚落：尼曼路一號市集 The One Nimman＋Maya百貨',
+            view_id: 'VTHICNX36',
+            view_content:
+              '清邁新地標商場「One Nimman尼曼路一號市集」，地點就在尼曼路交叉口，鄰近「MAYA大型百貨公司」，以彙集泰國設計潮流品牌為目標，打造一個占地廣闊、各大生活需求品進駐的生活商圈，整個商場也是相當文青風商場、加上飯店與購物美食綜合區域，融合當代生活、當地文化、藝術空間、酒吧等，讓尼曼路更符合「潮人區」，除了在地人愛逛，也吸引很多觀光客朝聖。',
+            view_image:
+              'https://www.hsihung.com.tw/intranet/view/images/VTHICNX36.jpg',
+            view_memo: '',
+          },
+        ],
+        hotel_content: [
+          {
+            list: 3,
+            hotel_name: 'Baisiri Maya Hotel',
+            hotel_url: 'http://www.baisirimaya.com/',
+          },
+          {
+            list: 2,
+            hotel_name: '宜必思寧曼清邁酒店',
+            hotel_url: 'www.ibischiangmai.com',
+          },
+          {
+            list: 1,
+            hotel_name: '清邁美居酒店',
+            hotel_url: 'all.accor.com/hotel/1797/index.en.shtml',
+          },
+        ],
+      },
+      {
+        day: '2',
+        breakfast: '酒店內用',
+        lunch: '國香餐廳中式料理 Ｂ.250',
+        dinner: '河畔餐廳泰式料理 B.250',
+        title:
+          '清邁-蘇町藍廟WAT SUEA TEN-金三角國家公園 : 乘船暢遊湄公河一覽三國邊境-金三角鴉片博物館(舊館)-清萊',
+        content: '',
+        special_note: '',
+        remind: '',
+        hotel_flag: 0,
+        view_content: [
+          {
+            list: 1,
+            view_title: '清萊藍廟：龍蘇町寺 Wat Rong Suea Ten',
+            view_id: 'VTHICEI17',
+            view_content:
+              '清萊藍廟位於泰北清萊市區，曾經是一座廢棄的寺廟，當時老虎在這片土地上漫步生活，所以後來被稱為「舞虎寺」，意思是跳舞中的老虎。爾後找了著名白廟之創作人藝術家的弟子Puttha Khabkaeo，歷時11年的創作將寺廟內部的壁畫以藍色為底，加上白色的佛像相當的莊嚴肅穆，獨特的裝飾讓遊客見到時立刻讚嘆不已！',
+            view_image:
+              'https://www.hsihung.com.tw/intranet/view/images/VTHICEI17.jpg',
+            view_memo: '入內時衣著必須符合當地規定，不能穿著太暴露的服裝。',
+          },
+          {
+            list: 2,
+            view_title: '船遊湄公河：金三角國家公園覽神秘邊境',
+            view_id: 'VTHICEI02',
+            view_content:
+              '泰國清萊是泰國最北的城市，鄰近寮國、緬甸，一條河的距離，知名景點「金三角公園」昔日以毒品聞名，是個惡名昭彰之地，蛻變後的金三角已不生產毒品囉，不僅可以看到對岸寮國，也能搭船遊湄公河觀看兩岸人民生活情形，順路探訪清盛古城。',
+            view_image:
+              'https://hsihung.ittms.com.tw/intranet/view/images/VTHICEI02.jpg',
+            view_memo: '',
+          },
+          {
+            list: 3,
+            view_title: '金三角鴉片博物館(舊館)',
+            view_id: 'VTHICEI03',
+            view_content:
+              '鴉片博物館位於泰國清邁金三角地區，早期因為毒品猖獗而興盛，後經泰國政府整頓後鴉片已銷聲匿跡，泰國政府為了提升人民對於鴉片的警覺性，耗時13年重金建造了這座鴉片博物館。博物館內設有種植園區，可在此探索鴉片的歷史、培植與使用方式等相關知識。',
+            view_image:
+              'https://www.hsihung.com.tw/intranet/view/images/VTHICEI03.jpg',
+            view_memo: '',
+          },
+        ],
+        hotel_content: [
+          {
+            list: 1,
+            hotel_name: 'KHAM THANA',
+            hotel_url: 'http://www.khamthanahotel.com/',
+          },
+          {
+            list: 2,
+            hotel_name: '柴奈萊河畔休閒中心酒店',
+            hotel_url: 'www.chainarai.co.th/3',
+          },
+          {
+            list: 3,
+            hotel_name: '拉努納度假村飯店',
+            hotel_url: 'www.lalunaresortchiangrai.com/',
+          },
+        ],
+      },
+      {
+        day: '3',
+        breakfast: '酒店內用',
+        lunch: '酒店自助餐 B.280',
+        dinner: '土樓餐廳 烤鴨+咖哩螃蟹 B.350',
+        title:
+          '清萊-龍坤藝術廟-蘭娜古城之旅(建都三王紀念像+大塔寺+水果街)-清邁夜市-清邁',
+        content: '',
+        special_note: '',
+        remind: '',
+        hotel_flag: 0,
+        view_content: [
+          {
+            list: 1,
+            view_title: '清萊白廟：龍坤藝術廟 Wat Rong Khun',
+            view_id: 'VTHICEI07',
+            view_content:
+              '這座花五年多時間所建的泰國風格龍坤藝術廟，裡面的藝術精品全都是泰國名藝術家們所創造出來，廟堂外觀裝飾鏡子碎片，山形窗則裝飾著Nagas(多頭蛇和幽冥世界之神祗)、大象及傘等形狀，內部還有查仁猜師父手繪的巨幅佛像壁畫。此廟結合傳統與現代創作的藝術塊寶，展現泰國國寶級藝術家的創意。',
+            view_image:
+              'http://hsihung.ittms.com.tw/intranet/view/images/VTHICEI07.jpg',
+            view_memo: '',
+          },
+          {
+            list: 2,
+            view_title: '蘭娜古城之旅(建都三王紀念像+大塔寺)',
+            view_id: 'ATHICNX43',
+            view_content:
+              '來趟古城之旅，從古城三王銅像開始，往清邁古城西門處出發，由遠而近的觀看清邁著名寺廟之一的帕刑寺，經過古城的西門(花園門)，順著護城河往南方向前進，經過南門，清邁南門傳統市場，再次進入古城，到達大塔寺參觀，再順著往東門的道路前進，經過東門廣場，離開護城河城內，順著濱河到達濱河大橋結束這趟古城之旅。',
+            view_image:
+              'https://hsihung.ittms.com.tw/intranet/view/images/ATHICNX43.jpg',
+            view_memo: '',
+          },
+          {
+            list: 3,
+            view_title: '清邁夜市 Chiang Mai Night Bazaar',
+            view_id: 'VTHICNX81',
+            view_content:
+              '夜市是最能夠反映當地的風俗以及飲食習慣的地方，也是當地人與觀光客同樂的最佳場所，逛街、購物、按摩與吃喝都能夠一次滿足。清邁必逛「清邁夜市Chiang Mai Night Bazaar」，也被稱為「長康路夜市」是清邁最大的夜市，裏面還包含2條夜市支線「阿努善夜市」和「清邁卡爾拉夜市！什麼都賣、什麼都不奇怪。\r\n\r\n',
+            view_image:
+              'https://hsihung.ittms.com.tw/intranet/view/images/VTHICNX81.jpg',
+            view_memo: '',
+          },
+        ],
+        hotel_content: [
+          {
+            list: 3,
+            hotel_name: 'Baisiri Maya Hotel',
+            hotel_url: 'http://www.baisirimaya.com/',
+          },
+          {
+            list: 2,
+            hotel_name: '宜必思寧曼清邁酒店',
+            hotel_url: 'www.ibischiangmai.com',
+          },
+          {
+            list: 1,
+            hotel_name: '清邁美居酒店',
+            hotel_url: 'all.accor.com/hotel/1797/index.en.shtml',
+          },
+        ],
+      },
+      {
+        day: '4',
+        breakfast: '酒店內用',
+        lunch: '象園簡餐',
+        dinner: '山林景觀餐廳(迎賓飲料+火焰飛天雞 B.650',
+        title:
+          '清邁-湄登大象營(騎大象、坐牛車、大象表演、長頸族村)-清邁藍廟-IG打卡點-天使瀑布仙境 DANTEWADA LAND OF ANGELS WATERFALLS-清邁',
+        content: '',
+        special_note: '',
+        remind: '',
+        hotel_flag: 0,
+        view_content: [
+          {
+            list: 1,
+            view_title:
+              '湄登大象營 Mae Taeng Elephant (騎大象、坐牛車、大象表演、長頸族村)',
+            view_id: 'ATHICNX25',
+            view_content:
+              '※叢林之旅三合一＋長頸族村\r\n大象表演：參觀工作人員在訓練大小象的工作的情形並觀看大象現場作畫表演，欣賞可愛大象自由隨性揮灑表演獨創的繪畫天份。\r\n體驗騎大象：絕妙的情趣，穿越叢林，體會古代皇帝用以代步座騎大象，品味越野情趣，此乃是人生一項難得又絕妙的回憶。\r\n牛車體驗：牛車是昔日鄉下農家的交通工具，您可親自享受時光倒流，體驗一下鄉間的牛車之旅，您會感到格外的新奇有趣。\r\n長頸族村：您可見到長頸族的風俗習慣與生活情形，由於長頸族人古老傳統習性，小女孩七歲開始就須在脖子上套銅圈，且隨著年紀的成長銅圈越加越高，直到結婚為止，此族群的族人已日益稀少，故更顯現出他們的特別。',
+            view_image:
+              'https://www.hsihung.com.tw/intranet/view/images/ATHICNX25.jpg',
+            view_memo: '',
+          },
+          {
+            list: 2,
+            view_title: '清邁最美寺廟：藍廟 Wat Ban Den',
+            view_id: 'VTHICNX80',
+            view_content:
+              '占地12.8萬平方公尺的清邁藍廟，絕對夠資格稱得上泰國最美廟宇。藍廟就像藝術化的偉大佛教廟宇，每座藍頂佛殿各具特色，有的是金碧輝煌，有的是沉實古雅，但細看下建築的每一個細節皆是精雕細琢，在藍天白雲下的藍廟更加的雄偉壯麗，而黃昏時更增添了一股神祕的氣息，就像一座色彩豐富的美麗圖畫盡收您眼底。',
+            view_image:
+              'http://hsihung.ittms.com.tw/intranet/view/images/VTHICNX80.jpg',
+            view_memo:
+              '佛教寺院是清淨的聖地，進入寺廟請尊敬佛教文化及遵守寺廟相關規定，勿穿著短褲短裙及背心或透視服裝，也不可穿著拖鞋。',
+          },
+          {
+            list: 3,
+            view_title:
+              '超人氣：天使瀑布仙境 Dantewada Land of Angels Waterfall Park',
+            view_id: 'VTHICNX69',
+            view_content:
+              '雖然這裡是人造景點，但整體景觀看起來很是逼真，充滿了瀑布、河流、花田、洞穴、小市集，還有咖啡館。園區被劃分成多個區域，遵循此路徑將引導您進入神秘的「迷霧森林」，穿過後就是晴朗天空和藍色瀉湖水域的瀑布，還有巨大的巨石和瀑布山區，繼續前時會漸漸被一片美麗花園所簇擁，其中也貼心為您設置石頭方便採景拍攝，人造山與瀑布的雄偉壯闊盡收眼底！',
+            view_image:
+              'https://www.hsihung.com.tw/intranet/view/images/VTHICNX69.jpg',
+            view_memo: '',
+          },
+        ],
+        hotel_content: [
+          {
+            list: 3,
+            hotel_name: 'Baisiri Maya Hotel',
+            hotel_url: 'http://www.baisirimaya.com/',
+          },
+          {
+            list: 2,
+            hotel_name: '宜必思寧曼清邁酒店',
+            hotel_url: 'www.ibischiangmai.com',
+          },
+          {
+            list: 1,
+            hotel_name: '清邁美居酒店',
+            hotel_url: 'all.accor.com/hotel/1797/index.en.shtml',
+          },
+        ],
+      },
+      {
+        day: '5',
+        breakfast: '酒店內用',
+        lunch: '機上餐食',
+        dinner: '',
+        title: '清邁-塔佩門古城牆打卡拍照-機場／桃園',
+        content: '',
+        special_note: '',
+        remind: '',
+        hotel_flag: 0,
+        view_content: [
+          {
+            list: 1,
+            view_title: '拍照打卡：清邁古城塔佩門 Tha Pae Gate',
+            view_id: 'VTHICNX14',
+            view_content:
+              '「塔佩門」是清邁舊城區的東門，也是舊時清邁城重要的迎賓門。泰國政府重建清邁部分城牆，以塔佩門的保存最完整，而東門的塔佩路，為城裡最熱鬧的一條商業街。每周都有規模龐大的周日夜市，攤商多到從城外延伸到城內，相當熱鬧，在夜市中還可以買到各種泰北風情的手做飾品或家具。',
+            view_image:
+              'https://www.hsihung.com.tw/intranet/view/images/VTHICNX14.jpg',
+            view_memo: '',
+          },
+          {
+            list: 2,
+            view_title: '溫暖的家',
+            view_id: 'ATHICNX06',
+            view_content:
+              '此時的旅遊已近尾聲，天下無不散的筵席，時間就在美好的時光之中飛去，該是回家整理美麗回憶的時候，記得要把您的快樂與我們分享唷！最後前往機場搭乘豪華客機返回溫暖的家，期待下回再相會！',
+            view_image:
+              'https://hsihung.ittms.com.tw/intranet/view/images/ATHICNX06.jpg',
+            view_memo: '',
+          },
+        ],
+        hotel_content: [
+          {
+            list: 1,
+            hotel_name: '溫暖的家',
+            hotel_url: '',
+          },
+        ],
+      },
+    ],
+  },
+];
+
 let fullScheduleData: QueryListNew;
 
 @Controller('schedule')
@@ -956,7 +1290,6 @@ export class ScheduleController {
   async addScheduleToQueryList(
     @Body() data: QueryListNew,
   ): Promise<QuerylistDto[]> {
-    // data = testData; // 測試的時候先用這個資料
     fullScheduleData = await this.scheduleService.addScheduleToQueryList(data);
     return fullScheduleData.data;
   }
@@ -1038,5 +1371,51 @@ export class ScheduleController {
 
     console.log('✅ 使用真實資料上傳到 BigQuery');
     return this.scheduleService.merge(body.data);
+  }
+
+  @Post('/itinerary')
+  @ApiOperation({ summary: '✅ 團控 API 取得行程資料' })
+  @ApiBody({
+    description: '行程資料陣列',
+    required: true,
+    schema: {
+      type: 'object',
+      properties: {
+        itineraryArr: {
+          type: 'array',
+          items: { type: 'number' },
+          example: [841827, 830745, 839622],
+        },
+      },
+    },
+  })
+  itinerary(@Body() body: { itineraryArr: number[] }) {
+    return this.scheduleService.itinerary(body.itineraryArr);
+  }
+
+  @Post('/bigqueryItinerary')
+  @ApiOperation({ summary: '🔧 團控 API 上傳資料' })
+  @ApiBody({
+    description: '行程資料陣列',
+    required: true,
+    schema: {
+      type: 'object',
+      properties: {
+        itineraryArr: {
+          type: 'array',
+          items: { type: 'array' },
+          example: itineraryExample,
+        },
+      },
+    },
+  })
+  mergeItinerary(@Body() body: { itineraryArr: ItineraryDetail[] }) {
+    return this.scheduleService.mergeItinerary(body.itineraryArr);
+  }
+
+  @Delete()
+  @ApiOperation({ summary: '⛔ 刪除過時資訊' })
+  async remove() {
+    return this.scheduleService.deleteItinerary();
   }
 }

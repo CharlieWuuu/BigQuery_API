@@ -19,12 +19,6 @@ export class BigqueryController {
     }
   }
 
-  @Delete()
-  @ApiOperation({ summary: '⛔ 刪除過時資訊' })
-  remove() {
-    return '開發中...';
-  }
-
   // 1. /schedule GET query_list
   // 2. /schedule POST query_list，每個 list 打 API 取得 schedule，嵌入 query_list 並且回傳
   // 3. /schedule POST query_list_with_schedule，回傳 view, hotel, food, schedule_cleared

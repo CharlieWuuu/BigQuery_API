@@ -5,11 +5,24 @@ import type { ScheduleSplitDto } from 'src/common/type/schedule.type';
 import { HotelDto } from './common/dto/hotel.dto';
 import { FoodDto } from './common/dto/food.dto';
 import { QueryListNew } from 'src/common/type/schedule.type';
+import { QuerylistService } from './querylist/querylist.service';
+import { ScheduleService } from './schedule/schedule.service';
+import axios from 'axios';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 let pagecount: number = 0;
+function formatDate(date: Date): string {
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  return `${date.getFullYear()}/${pad(date.getMonth() + 1)}/${pad(date.getDate())}`;
+}
 
 @Injectable()
 export class AppService {
+  constructor(
+    private readonly querylistService: QuerylistService,
+    private readonly scheduleService: ScheduleService,
+  ) {}
+
   private async updateDateChunk(pageid: number) {
     let result_querylist: QueryListNew;
     let result: QuerylistDto[] = [];
@@ -287,5 +300,60 @@ export class AppService {
     }
     console.log('🎉 所有資料更新完成！');
     return '資料已更新完成';
+  }
+
+  async updateDataTourData(
+    page: number,
+    page_count: number,
+  ): Promise<{ status: string; msg: string }> {
+    const getTourData = async () => {
+      const today = new Date();
+      const nextMonth = new Date(today);
+      nextMonth.setMonth(today.getMonth() + 1);
+      const halfYearLater = new Date(today);
+      halfYearLater.setMonth(today.getMonth() + 7);
+
+      const nextMonthStr = formatDate(nextMonth);
+      const halfYearLaterStr = formatDate(halfYearLater);
+
+      return await axios.request({
+        method: 'GET',
+        url: 'https://travelapi.besttour.com.tw/api/tour/v3/tourData/',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'MzQwODA1LDIwMjUvMTIvMDEsJmRmMiotNQ==',
+        },
+        data: {
+          date_start: nextMonthStr, // 出發日期：下個月
+          date_end: halfYearLaterStr, // 出發日期：下個月的半年後
+          takeoff_city: ['桃園', '松山', '台中', '高雄'], // 出發城市
+          area: '12, 156', // 日本、泰國
+          page: 1,
+          page_count,
+        },
+      });
+    };
+
+    const res = await getTourData();
+    const total_page = res.data.page.total_page as number;
+
+    for (page = 1; page <= total_page; page++) {
+      console.log(`取得第 ${page} / ${total_page} 頁 tourData`);
+      const tourData = (await this.querylistService.tourData(page, page_count))
+        .data as number[];
+      const itineraryArr = await this.scheduleService.itinerary(tourData);
+      await this.scheduleService.mergeItinerary(itineraryArr);
+    }
+
+    await this.scheduleService.deleteItinerary();
+    console.log('🎉 所有資料更新完成');
+
+    return { status: '00', msg: 'Success' };
+  }
+
+  // 每天凌晨 1 點自動執行
+  @Cron(CronExpression.EVERY_DAY_AT_1AM)
+  async handleCron() {
+    await this.updateDataTourData(1, 20); // 參數可依需求調整
   }
 }

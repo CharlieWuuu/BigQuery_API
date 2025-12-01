@@ -1,0 +1,99 @@
+{
+  "pak_flag": "0",
+  "group_id": 23490,
+  "travel_id": 841827,
+  "travel_no": "CNX05BR260101Z",
+  "travel_status": "1",
+  "travel_day": 5,
+  "travel_date": "2026/01/01",
+  "country": "泰國",
+  "area": [
+    {
+      "name": "東南亞",
+      "id": 55,
+      "sub": [
+        {
+          "name": "泰國",
+          "id": 156,
+          "sub": [
+            {
+              "name": "清邁",
+              "id": 170
+            },
+            {
+              "name": "清萊",
+              "id": 707
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "takeoff_city": "桃園",
+  "travel_image_url": "https://hsihung.ittms.com.tw/intranet/travel_list/images/23490.jpg",
+  "keywords": "春節不打烊,A2405線上旅展CY",
+  "travel_abstract": "",
+  "travel_city": "清萊,清邁",
+  "price_adult": 26888,
+  "price_adult_agent": 24888,
+  "price_child": 26888,
+  "price_child_agent": 24888,
+  "price_child_2": 24888,
+  "price_child_agent_2": 22888,
+  "price_inf": 4800,
+  "price_inf_agent": 3800,
+  "price_single": 5000,
+  "pre_fee": 10000,
+  "visa_type": "2",
+  "visa_fee": 1200,
+  "tax_fee": 0,
+  "Y_class": 16,
+  "order_person": 14,
+  "unpay_person": 1,
+  "RQ_person": 0,
+  "tour_flag": "0",
+  "fly_data": [
+    {
+      "fly_no": "BR257",
+      "fly_date": "2026/01/01",
+      "dep_city_code": "TPE",
+      "arr_city_code": "CNX",
+      "dep_tm": "07:20",
+      "arr_tm": "10:35",
+      "fly_line": "長榮航空",
+      "dep_city": "桃園",
+      "arr_city": "清邁"
+    },
+    {
+      "fly_no": "BR258",
+      "fly_date": "2026/01/05",
+      "dep_city_code": "CNX",
+      "arr_city_code": "TPE",
+      "dep_tm": "11:50",
+      "arr_tm": "16:30",
+      "fly_line": "長榮航空",
+      "dep_city": "清邁",
+      "arr_city": "桃園"
+    }
+  ],
+  "travel_title_1": "【超值泰北雙城５日】無購物、湄登大象營、寧曼創意街、天使瀑布仙境、蘭納古城之旅[含稅]",
+  "travel_title_2": "金三角風情、長頸族村、龍坤藝術廟",
+  "special_icon": [
+    {
+      "icon_color": "",
+      "icon_name": "無購物站"
+    },
+    {
+      "icon_color": "",
+      "icon_name": "免費SIM卡"
+    }
+  ],
+  "discount": [],
+  "child_age": {
+    "child_age_10": 12,
+    "child_age_11": 12,
+    "child_age_20": 2,
+    "child_age_21": 12,
+    "INF_age": 2
+  }
+}
