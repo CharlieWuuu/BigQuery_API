@@ -306,6 +306,7 @@ export class AppService {
     page: number,
     page_count: number,
   ): Promise<{ status: string; msg: string }> {
+    // 1. 取得頁數
     const getTourData = async () => {
       const today = new Date();
       const nextMonth = new Date(today);
@@ -334,15 +335,29 @@ export class AppService {
       });
     };
 
+    // 2. 逐頁處理資料
     const res = await getTourData();
     const total_page = res.data.page.total_page as number;
 
     for (page = 1; page <= total_page; page++) {
       console.log(`取得第 ${page} / ${total_page} 頁 tourData`);
+      // 3. 取得清單
       const tourData = (await this.querylistService.tourData(page, page_count))
         .data as number[];
+
+      // 4. 取得細節
       const itineraryArr = await this.scheduleService.itinerary(tourData);
+
+      // 5. 拆資料
+
+      // 6. 景點 Enrich
+
+      // 7. 上傳 Itinerary
       await this.scheduleService.mergeItinerary(itineraryArr);
+
+      // 8. 上傳景點
+
+      // 9. 或是看有沒有缺資料，再補經緯度
     }
 
     await this.scheduleService.deleteItinerary();
