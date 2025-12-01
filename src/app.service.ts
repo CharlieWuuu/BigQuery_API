@@ -321,7 +321,7 @@ export class AppService {
         url: 'https://travelapi.besttour.com.tw/api/tour/v3/tourData/',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: 'MzQwODA1LDIwMjUvMTIvMDEsJmRmMiotNQ==',
+          Authorization: process.env.TRAVEL_API_KEY!,
         },
         data: {
           date_start: nextMonthStr, // 出發日期：下個月

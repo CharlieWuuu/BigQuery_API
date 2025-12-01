@@ -1394,7 +1394,7 @@ export class ScheduleController {
   }
 
   @Post('/bigqueryItinerary')
-  @ApiOperation({ summary: '🔧 團控 API 上傳資料' })
+  @ApiOperation({ summary: '✅ 團控 API 上傳資料' })
   @ApiBody({
     description: '行程資料陣列',
     required: true,
@@ -1414,7 +1414,7 @@ export class ScheduleController {
   }
 
   @Delete()
-  @ApiOperation({ summary: '⛔ 刪除過時資訊' })
+  @ApiOperation({ summary: '✅ 刪除過時資訊' })
   async remove() {
     return this.scheduleService.deleteItinerary();
   }

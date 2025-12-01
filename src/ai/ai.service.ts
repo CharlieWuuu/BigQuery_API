@@ -7,8 +7,6 @@ export class AiService {
   private rawBase64 = process.env.GOOGLE_SERVICE_ACCOUNT_KEY!;
   private jsonString = Buffer.from(this.rawBase64, 'base64').toString('utf8');
   private credentialJson = JSON.parse(this.jsonString) as GoogleCredentialJson;
-  // private private_key = this.json.private_key.replace(/\\n/g, '\n');
-  // private credentialJson = { ...this.json, private_key: this.private_key };
 
   async ai(requirement: string, preamble: string): Promise<any> {
     console.log('🤖 開始呼叫 Google Discovery Engine AI，需求：', requirement);
@@ -57,9 +55,21 @@ export class AiService {
       });
 
       const result = await response.json();
-      console.log(result);
+      const answerTextRaw = result.answer.answerText as string;
+      const answerTextClean = answerTextRaw
+        .replace(/```json|```/g, '') // 移除 ```json 和 ```
+        .replace(/^\s+|\s+$/g, ''); // 去除前後空白
+
+      let answerJson: any = null;
+      try {
+        answerJson = JSON.parse(answerTextClean);
+      } catch (e) {
+        console.error('❌ 解析 answerText 失敗:', e);
+      }
+
+      console.log(answerJson);
       console.log('🎉 AI 回應處理完成');
-      return result;
+      return { status: '00', msg: 'Success', data: answerJson };
     } catch (error) {
       console.error('❌ AI Service 錯誤:', error);
       return { success: false, error: (error as Error).message };

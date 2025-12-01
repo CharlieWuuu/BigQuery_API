@@ -225,7 +225,7 @@ export class ScheduleService {
         url: 'https://travelapi.besttour.com.tw/api/tour/v3/itinerary/',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: 'MzQwODA1LDIwMjUvMTIvMDEsJmRmMiotNQ==',
+          Authorization: process.env.TRAVEL_API_KEY!,
         },
         data: { travel_id: travel_id },
       });
