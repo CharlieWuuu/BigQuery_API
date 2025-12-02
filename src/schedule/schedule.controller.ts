@@ -1393,7 +1393,29 @@ export class ScheduleController {
     return this.scheduleService.itinerary(body.itineraryArr);
   }
 
-  @Post('/bigqueryItinerary')
+  @Post('/itinerarySplit')
+  @ApiOperation({
+    summary: '✅ Itinerary 分割成 View、Schedule',
+  })
+  @ApiBody({
+    description: '行程資料陣列',
+    required: true,
+    schema: {
+      type: 'object',
+      properties: {
+        itineraryArr: {
+          type: 'array',
+          items: { type: 'array' },
+          example: itineraryExample,
+        },
+      },
+    },
+  })
+  splitDataItinerary(@Body() body: { itineraryArr: ItineraryDetail[] }) {
+    return this.scheduleService.splitDataItinerary(body.itineraryArr);
+  }
+
+  @Post('/itineraryBigquery')
   @ApiOperation({ summary: '✅ 團控 API 上傳資料' })
   @ApiBody({
     description: '行程資料陣列',

@@ -11,12 +11,16 @@ export interface FlyData {
 }
 
 export interface ViewContent {
-  list: number;
+  list?: number;
   view_title: string;
   view_id: string;
-  view_content: string;
-  view_image: string;
-  view_memo: string;
+  view_content?: string;
+  view_image?: string;
+  view_memo?: string;
+  city?: string;
+  tags?: string[];
+  lat?: number;
+  lng?: number;
 }
 
 export interface HotelContent {

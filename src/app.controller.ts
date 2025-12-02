@@ -7,11 +7,11 @@ import { Body } from '@nestjs/common/decorators';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get('updateData')
-  @ApiOperation({ summary: '資料更新的總入口' })
-  async updateData(): Promise<string> {
-    return this.appService.updateData();
-  }
+  // @Get('updateData')
+  // @ApiOperation({ summary: '資料更新的總入口' })
+  // async updateData(): Promise<string> {
+  //   return this.appService.updateData();
+  // }
 
   @Post('updateDataTourData')
   @ApiOperation({ summary: '資料更新 Tour Data 總入口' })

@@ -53,20 +53,4 @@ export class BigqueryService {
       throw error;
     }
   }
-
-  async insertView(rows: object[]) {
-    return this.insert('Bestour_AI.TEST_VIEW_DB', rows);
-  }
-
-  async insertFood(rows: object[]) {
-    return this.insert('Bestour_AI.TEST_FOOD_DB', rows);
-  }
-
-  async insertHotel(rows: object[]) {
-    return this.insert('Bestour_AI.TEST_HOTEL_DB', rows);
-  }
-
-  async insertScheduleCleared(rows: object[]) {
-    return this.insert('Bestour_AI.TEST_SCHEDULE_CLEARED_DB', rows);
-  }
 }

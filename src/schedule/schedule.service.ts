@@ -10,7 +10,21 @@ import { BigQuery } from '@google-cloud/bigquery';
 import { setTimeout as wait } from 'timers/promises';
 import { GoogleCredentialJson } from 'src/common/type/googleCredential.type';
 import axios from 'axios';
-import type { ItineraryDetail } from 'src/common/type/itinerary.type';
+import type {
+  ItineraryDetail,
+  ViewContent,
+} from 'src/common/type/itinerary.type';
+
+function formatDate(date: Date): string {
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  return `${date.getFullYear()}/${pad(date.getMonth() + 1)}/${pad(date.getDate())}`;
+}
+
+function encodeBase64(str: string): string {
+  const utf8Bytes: Uint8Array = new TextEncoder().encode(str);
+  const binaryString = String.fromCharCode.apply(null, utf8Bytes) as string;
+  return btoa(binaryString);
+}
 
 @Injectable()
 export class ScheduleService {
@@ -191,7 +205,7 @@ export class ScheduleService {
                   source.day, source.travel, source.schedule, source.tags)
       `;
 
-      console.log('執行 MERGE 查詢...');
+      console.log('[ schedule.service ] 執行 MERGE 查詢...');
       const [job] = await this.bigquery.createQueryJob({
         query: mergeQuery,
         location: 'US', // 或你的資料集位置
@@ -216,7 +230,7 @@ export class ScheduleService {
   }
 
   async itinerary(itineraryArr: number[]) {
-    console.log('取得行程資料:', itineraryArr);
+    console.log('[ schedule.service ] 取得行程資料');
     const result_Arr: ItineraryDetail[] = [];
 
     const getItinerary = async (travel_id: number) => {
@@ -225,12 +239,20 @@ export class ScheduleService {
         url: 'https://travelapi.besttour.com.tw/api/tour/v3/itinerary/',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: process.env.TRAVEL_API_KEY!,
+          Authorization: encodeBase64(
+            `340805,${formatDate(new Date())},&df2*-5`,
+          ),
         },
         data: { travel_id: travel_id },
       });
 
       const data = res.data.data[0] as ItineraryDetail;
+      if (!data) {
+        console.warn(
+          `[ schedule.service ] 找不到行程細節 travel_id: ${travel_id}`,
+        );
+        return;
+      }
       result_Arr.push({
         travel_id: data.travel_id,
         travel_no: data.travel_no,
@@ -251,11 +273,52 @@ export class ScheduleService {
     };
 
     for (const travel_id of itineraryArr) {
+      console.log(`[ schedule.service ] 取得行程細節 travel_id: ${travel_id}`);
       await getItinerary(travel_id);
-      await wait(200); // 每次請求後等待 200 毫秒
     }
 
     return result_Arr;
+  }
+
+  splitDataItinerary(fullItineraryData: ItineraryDetail[]): {
+    itinerary: ItineraryDetail[];
+    view: ViewContent[];
+  } {
+    const itineraryData = fullItineraryData.map((item) => {
+      return {
+        ...item,
+        fly_data: item.fly_data.map((fly) => ({
+          ...fly,
+        })),
+        day_content: item.day_content.map((day) => ({
+          ...day,
+          view_content: day.view_content.map((view) => ({
+            list: view.list,
+            view_title: view.view_title,
+            view_id: view.view_id,
+          })),
+        })),
+      };
+    });
+    const viewData = fullItineraryData.flatMap((item) => {
+      return item.day_content.flatMap((day) =>
+        day.view_content.map((view) => ({
+          view_title: view.view_title,
+          view_id: view.view_id,
+          view_content: view.view_content,
+          view_image: view.view_image,
+          view_memo: view.view_memo,
+          city: '',
+          tags: [],
+          lat: 0,
+          lng: 0,
+        })),
+      );
+    });
+
+    // 目前不需要額外處理，直接回傳
+    console.log('[ schedule.service ] 拆分行程與景點資料完成');
+    return { itinerary: itineraryData, view: viewData };
   }
 
   async mergeItinerary(rows: ItineraryDetail[]) {
@@ -380,7 +443,7 @@ export class ScheduleService {
         )
     `;
 
-      console.log('執行 MERGE 查詢...');
+      console.log('[ schedule.service ] 執行 MERGE 查詢...');
       const [job] = await this.bigquery.createQueryJob({
         query: mergeQuery,
         location: 'US', // 或你的資料集位置
@@ -391,7 +454,7 @@ export class ScheduleService {
       // 3. 清理臨時表
       await tempTable.delete();
 
-      console.log(`成功 merge 資料到 BigQuery`);
+      console.log(`[ schedule.service ] 成功 merge 資料到 BigQuery`);
       return {
         success: true,
         processedRows: rows.length,
@@ -399,7 +462,10 @@ export class ScheduleService {
         operation: 'merge',
       };
     } catch (error) {
-      console.error('BigQuery mergeItinerary 失敗:', error);
+      console.error(
+        '[ schedule.service ] BigQuery mergeItinerary 失敗:',
+        error,
+      );
       throw error;
     }
   }
@@ -409,18 +475,14 @@ export class ScheduleService {
       const projectId = process.env.GOOGLE_CLOUD_PROJECT;
       const datasetId = process.env.BIGQUERY_DATASET as string;
       const tableId = 'ITINERARY_DB';
-
-      const sql = `DELETE FROM \`${projectId}.${datasetId}.${tableId}\` WHERE PARSE_DATE('%Y/%m/%d', travel_date) < CURRENT_DATE()
-    `;
-
-      console.log('執行 BigQuery 查詢...');
+      const sql = `DELETE FROM \`${projectId}.${datasetId}.${tableId}\` WHERE PARSE_DATE('%Y/%m/%d', travel_date) < CURRENT_DATE()`;
       const [job] = await this.bigquery.createQueryJob({ query: sql });
       await job.getQueryResults();
 
-      console.log(`成功刪除過時資料`);
+      console.log(`[ schedule.service ] 成功刪除過時資料`);
       return { status: '00', msg: 'Success' };
     } catch (error) {
-      console.error('BigQuery 刪除失敗:', error);
+      console.error('[ schedule.service ] BigQuery 刪除失敗:', error);
       return { status: '99', msg: 'Error', error: (error as Error).message };
     }
   }

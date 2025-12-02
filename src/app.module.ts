@@ -10,6 +10,7 @@ import { QuerylistService } from './querylist/querylist.service';
 import { AiModule } from './ai/ai.module';
 import { ScheduleService } from './schedule/schedule.service';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ViewService } from './view/view.service';
 
 @Module({
   imports: [
@@ -22,6 +23,6 @@ import { ScheduleModule } from '@nestjs/schedule';
     ScheduleModule.forRoot(),
   ],
   controllers: [AppController], // 只留 AppController
-  providers: [AppService, QuerylistService, ScheduleService], // 只留 AppService
+  providers: [AppService, QuerylistService, ScheduleService, ViewService], // 只留 AppService
 })
 export class AppModule {}

@@ -19,6 +19,12 @@ export class QuerylistController {
     return this.QuerylistService.get(pageid ?? 1);
   }
 
+  @Get('/queryTravelId')
+  @ApiOperation({ summary: '✅ 查詢所有的 ID' })
+  query() {
+    return this.QuerylistService.query();
+  }
+
   @Get('/tourData')
   @ApiOperation({ summary: '✅ 查詢 Tour Data' })
   @ApiQuery({

@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { QueryListNew } from 'src/common/type/schedule.type';
 import axios from 'axios';
+import { BigQuery } from '@google-cloud/bigquery';
+import type { GoogleCredentialJson } from 'src/common/type/googleCredential.type';
 
 export interface TravelArea {
   name: string;
@@ -92,8 +94,26 @@ function formatDate(date: Date): string {
   return `${date.getFullYear()}/${pad(date.getMonth() + 1)}/${pad(date.getDate())}`;
 }
 
+function encodeBase64(str: string): string {
+  const utf8Bytes: Uint8Array = new TextEncoder().encode(str);
+  const binaryString = String.fromCharCode.apply(null, utf8Bytes) as string;
+  return btoa(binaryString);
+}
+
 @Injectable()
 export class QuerylistService {
+  private rawBase64 = process.env.GOOGLE_SERVICE_ACCOUNT_KEY!;
+  private jsonString = Buffer.from(this.rawBase64, 'base64').toString('utf8');
+  private json = JSON.parse(this.jsonString) as GoogleCredentialJson;
+
+  private bigquery: BigQuery = new BigQuery({
+    projectId: this.json.project_id,
+    credentials: {
+      client_email: this.json.client_email,
+      private_key: this.json.private_key.replace(/\\n/g, '\n'), // 這裡保留替換，因為 private_key 內部仍是轉義字符
+    },
+  });
+
   async get(pageid: number) {
     try {
       const res = await fetch(
@@ -121,8 +141,24 @@ export class QuerylistService {
     }
   }
 
+  async query() {
+    try {
+      const [rows] = await this.bigquery.query({
+        query: `SELECT travel_id FROM ${process.env.GOOGLE_CLOUD_PROJECT}.${process.env.BIGQUERY_DATASET}.ITINERARY_DB`,
+      });
+
+      console.log('[ querylist.service ] 查詢成功');
+      return rows.flatMap((row) => row.travel_id) as number[];
+    } catch (error) {
+      console.error('[ querylist.service ] BigQuery 查詢失敗:', error);
+      throw error;
+    }
+  }
+
   async tourData(page: number, page_count: number) {
-    console.log(`查詢 Tour Data，頁碼：${page}，每頁筆數：${page_count}`);
+    console.log(
+      `[ querylist.service ] 查詢 Tour Data，頁碼：${page}，每頁筆數：${page_count}`,
+    );
     const today = new Date();
     const nextMonth = new Date(today);
     nextMonth.setMonth(today.getMonth() + 1);
@@ -138,7 +174,9 @@ export class QuerylistService {
         url: 'https://travelapi.besttour.com.tw/api/tour/v3/tourData/',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: 'MzQwODA1LDIwMjUvMTIvMDEsJmRmMiotNQ==',
+          Authorization: encodeBase64(
+            `340805,${formatDate(new Date())},&df2*-5`,
+          ),
         },
         data: {
           date_start: nextMonthStr, // 出發日期：下個月
@@ -158,7 +196,9 @@ export class QuerylistService {
       const travel_id_Arr = Array.from(
         new Set(data.data.map((item) => item.travel_id)),
       );
-      console.log(`取得 ${travel_id_Arr.length} 筆 travel_id：`, travel_id_Arr);
+      console.log(
+        `[ querylist.service ] 取得 ${travel_id_Arr.length} 筆 travel_id：`,
+      );
       return { status: '00', msg: 'Success', data: travel_id_Arr };
     } catch (error) {
       return { status: '05', msg: (error as Error).message };
