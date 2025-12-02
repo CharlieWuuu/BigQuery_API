@@ -25,9 +25,9 @@ const preamble = `
 			"day": 1,
 			"view": [
 				{
-					"name": "景點名稱【特色說明】 (從 ITINERARY_DB 知識庫中選取)",
+					"name": "景點名稱",
 					"images": "https://hsihung.ittms.com.tw/intranet/view/images/VJPNEHI04.jpg",
-					"description": "景點說明 (從 ITINERARY_VIEW_DB 知識庫中選取)"
+					"description": "景點說明"
 					"lat": 0.000000 緯度 (從 ITINERARY_VIEW_DB 知識庫中選取)
 					"lng": 0.000000 經度 (從 ITINERARY_VIEW_DB 知識庫中選取)
 				},

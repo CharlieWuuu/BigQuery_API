@@ -428,8 +428,8 @@ export class AppService {
     return { status: '00', msg: 'Success' };
   }
 
-  // 測試：每分鐘執行
-  @Cron('*/1 * * * *')
+  // 測試：每日 13 點
+  @Cron('0 13 * * *')
   async handleCron() {
     await this.updateDataTourData(1, 20); // 參數可依需求調整
   }
