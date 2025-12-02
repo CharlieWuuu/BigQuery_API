@@ -1,19 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { QuerylistDto } from './common/dto/querylist.dto';
-import { ViewDto } from './common/dto/view.dto';
-import type { ScheduleSplitDto } from 'src/common/type/schedule.type';
-import { HotelDto } from './common/dto/hotel.dto';
-import { FoodDto } from './common/dto/food.dto';
-import { QueryListNew } from 'src/common/type/schedule.type';
-import { Page, QuerylistService } from './querylist/querylist.service';
+import { QuerylistService } from './querylist/querylist.service';
 import { ScheduleService } from './schedule/schedule.service';
 import { ViewService } from './view/view.service';
 import axios from 'axios';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { dataEnrich } from './common/utils/data_enrich';
-import { ViewContent } from './common/type/itinerary.type';
 
-let pagecount: number = 0;
 function formatDate(date: Date): string {
   const pad = (n: number) => n.toString().padStart(2, '0');
   return `${date.getFullYear()}/${pad(date.getMonth() + 1)}/${pad(date.getDate())}`;

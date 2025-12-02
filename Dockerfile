@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:20-alpine
 
 # 安裝必要工具和 PM2
 RUN apk add --no-cache curl

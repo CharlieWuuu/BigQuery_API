@@ -4,7 +4,6 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as dotenv from 'dotenv';
 import { json, urlencoded } from 'express';
 import type { Express } from 'express';
-import * as crypto from 'crypto';
 
 dotenv.config();
 
