@@ -44,21 +44,26 @@ export class ViewController {
   constructor(private readonly viewService: ViewService) {}
 
   @Get('/queryViewNotEnrichedId')
-  @ApiOperation({ summary: '✅ 查詢所有的景點 ID' })
+  @ApiOperation({ summary: '✅ 查詢尚未 enrich 的景點 ID' })
   async queryViewNotEnrichedId() {
     return this.viewService.queryViewNotEnrichedId();
   }
 
   @Get('/queryView')
-  @ApiOperation({ summary: '✅ 查詢單一景點' })
+  @ApiOperation({ summary: '✅ 批次查詢景點' })
   @ApiQuery({
     name: 'view_id_Arr',
     description: '景點 ID',
     required: true,
     type: String,
-    example: 'VTHICNX16',
+    isArray: true,
+    example: ['VTHICNX16'],
   })
-  async queryView(@Query() { view_id_Arr }: { view_id_Arr: string[] }) {
+  async queryView(@Query() query: { view_id_Arr: string | string[] }) {
+    let view_id_Arr = query.view_id_Arr;
+    if (!Array.isArray(view_id_Arr)) {
+      view_id_Arr = [view_id_Arr];
+    }
     return this.viewService.queryView(view_id_Arr);
   }
 
@@ -71,7 +76,6 @@ export class ViewController {
     },
   })
   async enrich(@Body() body: { data: ViewDto[] }): Promise<ViewDto[]> {
-    console.log('✅ 以 AI 補足資料細節');
     return dataEnrich(body.data, 'view');
   }
 
@@ -89,7 +93,7 @@ export class ViewController {
   // }
 
   @Post('/itineraryBigqueryMerge')
-  @ApiOperation({ summary: '✅ 上傳資料到 BigQuery' })
+  @ApiOperation({ summary: '✅ 上傳團控 API 景點資料到 BigQuery' })
   @ApiBody({
     description: `請貼上景點資料 JSON：`,
     examples: {
@@ -97,7 +101,6 @@ export class ViewController {
     },
   })
   async mergeView(@Body() body: { data: ViewDto[] }) {
-    console.log('✅ 開始上傳資料到 BigQuery');
     return this.viewService.mergeView(body.data);
   }
 

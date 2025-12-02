@@ -1279,99 +1279,99 @@ let fullScheduleData: QueryListNew;
 export class ScheduleController {
   constructor(private readonly scheduleService: ScheduleService) {}
 
-  @Get('/bigquery')
-  @ApiOperation({ summary: '⛔ 查詢 BigQuery 資料' })
-  get() {
-    return '開發中...';
-  }
+  // @Get('/bigquery')
+  // @ApiOperation({ summary: '⛔ 查詢 BigQuery 資料' })
+  // get() {
+  //   return '開發中...';
+  // }
 
-  @Post('/addSchedule')
-  @ApiOperation({ summary: '✅ QueryList 嵌入 Schedule' })
-  async addScheduleToQueryList(
-    @Body() data: QueryListNew,
-  ): Promise<QuerylistDto[]> {
-    fullScheduleData = await this.scheduleService.addScheduleToQueryList(data);
-    return fullScheduleData.data;
-  }
+  // @Post('/addSchedule')
+  // @ApiOperation({ summary: '✅ QueryList 嵌入 Schedule' })
+  // async addScheduleToQueryList(
+  //   @Body() data: QueryListNew,
+  // ): Promise<QuerylistDto[]> {
+  //   fullScheduleData = await this.scheduleService.addScheduleToQueryList(data);
+  //   return fullScheduleData.data;
+  // }
 
-  @Post('splitData')
-  @ApiOperation({
-    summary: '✅ QueryList（with Schedule）分割成 View、Hotel、Food、Schedule',
-  })
-  splitData() {
-    return this.scheduleService.splitData(fullScheduleData.data);
-  }
+  // @Post('splitData')
+  // @ApiOperation({
+  //   summary: '✅ QueryList（with Schedule）分割成 View、Hotel、Food、Schedule',
+  // })
+  // splitData() {
+  //   return this.scheduleService.splitData(fullScheduleData.data);
+  // }
 
-  @Post('/bigquery')
-  @ApiOperation({ summary: '✅ 上傳資料到 BigQuery' })
-  @ApiBody({
-    description: `請貼上旅遊資料 JSON：`,
-    examples: {
-      example1: {
-        summary: '測試用行程資料',
-        description: '四國相撲５日遊完整資料範例',
-        value: {
-          data: [
-            {
-              name: '測試用行程-五天四夜-日本松山-2025-12-10',
-              id: '5534',
-              img: 'https://hsihung.ittms.com.tw/intranet/travel_list/images/5534.jpg',
-              city: '日本 松山',
-              slogan: '',
-              day: '5',
-              price: 45900,
-              travel: [
-                {
-                  date: '12/10',
-                  travel_no: 'TAK05CI251210A',
-                  price: 45900,
-                },
-              ],
-              schedule: [
-                {
-                  day: '1',
-                  date: '12 10 2025',
-                  title: '四國香川縣溫泉',
-                  route: ['桃園國際機場高松空港'],
-                  hotel: {
-                    status: '1',
-                    data: [
-                      {
-                        name: '雷歐瑪REOMA森之湯溫泉SPA飯店',
-                        url: 'http://www.ooedoonsen.jp/reomanomori/',
-                      },
-                      {
-                        name: '新樺川觀光飯店',
-                        url: 'http://www.shinkabakawa.com/',
-                      },
-                      {
-                        name: '高松麗嘉飯店ZEST',
-                        url: 'http://www.rihga-takamatsu.co.jp/',
-                      },
-                    ],
-                  },
-                  food: ['溫暖的家', '機上套餐', '飯店內迎賓會席料理'],
-                  abstract_1: '台北／高松空港－夜宿～四國香川縣溫泉',
-                  abstract_2: [{ id: 'VJPNKGW11', name: '高松空港' }],
-                },
-              ],
-              tags: [],
-            },
-          ],
-        },
-      },
-    },
-  })
-  async merge(@Body() body: { data: QuerylistDto[] }) {
-    console.log('Received data for BigQuery merge:');
-    if (!body?.data || body.data.length === 0) {
-      console.log('⚠️ 沒有傳入飯店資料，使用測試資料');
-      return this.scheduleService.merge([]); // 手動測試時使用假資料
-    }
+  // @Post('/bigquery')
+  // @ApiOperation({ summary: '✅ 上傳資料到 BigQuery' })
+  // @ApiBody({
+  //   description: `請貼上旅遊資料 JSON：`,
+  //   examples: {
+  //     example1: {
+  //       summary: '測試用行程資料',
+  //       description: '四國相撲５日遊完整資料範例',
+  //       value: {
+  //         data: [
+  //           {
+  //             name: '測試用行程-五天四夜-日本松山-2025-12-10',
+  //             id: '5534',
+  //             img: 'https://hsihung.ittms.com.tw/intranet/travel_list/images/5534.jpg',
+  //             city: '日本 松山',
+  //             slogan: '',
+  //             day: '5',
+  //             price: 45900,
+  //             travel: [
+  //               {
+  //                 date: '12/10',
+  //                 travel_no: 'TAK05CI251210A',
+  //                 price: 45900,
+  //               },
+  //             ],
+  //             schedule: [
+  //               {
+  //                 day: '1',
+  //                 date: '12 10 2025',
+  //                 title: '四國香川縣溫泉',
+  //                 route: ['桃園國際機場高松空港'],
+  //                 hotel: {
+  //                   status: '1',
+  //                   data: [
+  //                     {
+  //                       name: '雷歐瑪REOMA森之湯溫泉SPA飯店',
+  //                       url: 'http://www.ooedoonsen.jp/reomanomori/',
+  //                     },
+  //                     {
+  //                       name: '新樺川觀光飯店',
+  //                       url: 'http://www.shinkabakawa.com/',
+  //                     },
+  //                     {
+  //                       name: '高松麗嘉飯店ZEST',
+  //                       url: 'http://www.rihga-takamatsu.co.jp/',
+  //                     },
+  //                   ],
+  //                 },
+  //                 food: ['溫暖的家', '機上套餐', '飯店內迎賓會席料理'],
+  //                 abstract_1: '台北／高松空港－夜宿～四國香川縣溫泉',
+  //                 abstract_2: [{ id: 'VJPNKGW11', name: '高松空港' }],
+  //               },
+  //             ],
+  //             tags: [],
+  //           },
+  //         ],
+  //       },
+  //     },
+  //   },
+  // })
+  // async merge(@Body() body: { data: QuerylistDto[] }) {
+  //   console.log('Received data for BigQuery merge:');
+  //   if (!body?.data || body.data.length === 0) {
+  //     console.log('⚠️ 沒有傳入飯店資料，使用測試資料');
+  //     return this.scheduleService.merge([]); // 手動測試時使用假資料
+  //   }
 
-    console.log('✅ 使用真實資料上傳到 BigQuery');
-    return this.scheduleService.merge(body.data);
-  }
+  //   console.log('✅ 使用真實資料上傳到 BigQuery');
+  //   return this.scheduleService.merge(body.data);
+  // }
 
   @Post('/itinerary')
   @ApiOperation({ summary: '✅ 團控 API 取得行程資料' })

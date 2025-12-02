@@ -340,7 +340,7 @@ export class AppService {
     // 1. 刪除過期行程
     await this.scheduleService.deleteItinerary();
 
-    // 2. 取得行程、景點 ID
+    // 2. 取得行程 ID
     const travelIds = await this.querylistService.query();
 
     // 3. 取得頁數
@@ -410,13 +410,13 @@ export class AppService {
       const batchIds = viewIds.slice(i, i + BATCH_SIZE);
       console.log('[ app.service ] 處理景點經緯度 (批次:', i, ')', batchIds);
 
-      // 2. 撈景點 (並行處理)
+      // 2. 撈景點 (批次處理)
       const fetchPromises = await this.viewService.queryView(batchIds);
 
-      // 3. AI 補經緯度 (單次批次呼叫)
+      // 3. AI 補經緯度 (批次呼叫)
       const viewEnriched = await dataEnrich(fetchPromises, 'view');
 
-      // 4. 更新景點經緯度 (單次批次更新)
+      // 4. 更新景點經緯度 (單批次更新)
       await this.viewService.mergeView(viewEnriched);
 
       // 記錄進度

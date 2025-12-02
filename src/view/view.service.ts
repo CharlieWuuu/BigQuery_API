@@ -40,6 +40,7 @@ export class ViewService {
   }
 
   async queryView(view_id_Arr: string[]) {
+    console.log('[ view.service ] 查詢景點 ID 數量:', view_id_Arr);
     try {
       const view = await this.bigquery.query({
         query: `
@@ -51,7 +52,6 @@ export class ViewService {
       });
 
       console.log(`[ view.service ] 查詢 ${view_id_Arr.length} 筆資料`, view);
-      console.log('============================================');
       return view[0] as ViewContent[];
     } catch (error) {
       console.error('[ view.service ] BigQuery 查詢失敗:', error);

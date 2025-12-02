@@ -6,18 +6,18 @@ import { ApiOperation, ApiQuery } from '@nestjs/swagger';
 export class QuerylistController {
   constructor(private readonly QuerylistService: QuerylistService) {}
 
-  @Get('/querylist')
-  @ApiOperation({ summary: '✅ 查詢 Querylist' })
-  @ApiQuery({
-    name: 'pageid',
-    description: '頁碼',
-    required: false,
-    type: Number,
-    example: 1,
-  })
-  querylist(@Query('pageid') pageid?: number) {
-    return this.QuerylistService.get(pageid ?? 1);
-  }
+  // @Get('/querylist')
+  // @ApiOperation({ summary: '✅ 查詢 Querylist' })
+  // @ApiQuery({
+  //   name: 'pageid',
+  //   description: '頁碼',
+  //   required: false,
+  //   type: Number,
+  //   example: 1,
+  // })
+  // querylist(@Query('pageid') pageid?: number) {
+  //   return this.QuerylistService.get(pageid ?? 1);
+  // }
 
   @Get('/queryTravelId')
   @ApiOperation({ summary: '✅ 查詢所有的 ID' })
@@ -38,7 +38,7 @@ export class QuerylistController {
     name: 'page_count',
     description: '每頁筆數',
     required: true,
-    type: Object,
+    type: Number,
     example: 10,
   })
   tourData(
