@@ -52,14 +52,14 @@ export class ViewController {
   @Get('/queryView')
   @ApiOperation({ summary: '✅ 查詢單一景點' })
   @ApiQuery({
-    name: 'view_id',
+    name: 'view_id_Arr',
     description: '景點 ID',
     required: true,
     type: String,
     example: 'VTHICNX16',
   })
-  async queryView(@Query() { view_id }: { view_id: string }) {
-    return this.viewService.queryView(view_id);
+  async queryView(@Query() { view_id_Arr }: { view_id_Arr: string[] }) {
+    return this.viewService.queryView(view_id_Arr);
   }
 
   @Post('/enrich')
@@ -101,16 +101,16 @@ export class ViewController {
     return this.viewService.mergeView(body.data);
   }
 
-  @Post('/itineraryBigqueryUpdate')
-  @ApiOperation({ summary: '✅ 上傳資料到 BigQuery' })
-  @ApiBody({
-    description: `請貼上景點資料 JSON：`,
-    examples: {
-      example1: { summary: '測試用景點資料', value: { data: insertData } },
-    },
-  })
-  async updateView(@Body() body: { data: ViewContent[] }) {
-    console.log('✅ 開始上傳資料到 BigQuery');
-    return this.viewService.updateView(body.data);
-  }
+  // @Post('/itineraryBigqueryUpdate')
+  // @ApiOperation({ summary: '✅ 上傳資料到 BigQuery' })
+  // @ApiBody({
+  //   description: `請貼上景點資料 JSON：`,
+  //   examples: {
+  //     example1: { summary: '測試用景點資料', value: { data: insertData } },
+  //   },
+  // })
+  // async updateView(@Body() body: { data: ViewContent[] }) {
+  //   console.log('✅ 開始上傳資料到 BigQuery');
+  //   return this.viewService.updateView(body.data);
+  // }
 }

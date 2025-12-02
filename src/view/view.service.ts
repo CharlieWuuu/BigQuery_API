@@ -39,19 +39,20 @@ export class ViewService {
     }
   }
 
-  async queryView(view_id: string) {
+  async queryView(view_id_Arr: string[]) {
     try {
       const view = await this.bigquery.query({
         query: `
         SELECT *
         FROM ${process.env.GOOGLE_CLOUD_PROJECT}.${process.env.BIGQUERY_DATASET}.ITINERARY_VIEW_DB
-        WHERE view_id = @view_id
+        WHERE view_id IN UNNEST(@view_id_Arr)
         `,
-        params: { view_id },
+        params: { view_id_Arr },
       });
 
-      console.log(`[ view.service ] 查詢 view_id: ${view_id} 的資料`);
-      return view[0][0] as ViewContent;
+      console.log(`[ view.service ] 查詢 ${view_id_Arr.length} 筆資料`, view);
+      console.log('============================================');
+      return view[0] as ViewContent[];
     } catch (error) {
       console.error('[ view.service ] BigQuery 查詢失敗:', error);
       throw error;
@@ -117,7 +118,7 @@ export class ViewService {
   //   }
   // }
 
-  async mergeView(rows: ViewDto[]) {
+  async mergeView(rows: ViewDto[] | ViewContent[]) {
     try {
       const projectId = process.env.GOOGLE_CLOUD_PROJECT;
       const datasetId = process.env.BIGQUERY_DATASET as string;
@@ -154,6 +155,16 @@ export class ViewService {
         MERGE \`${projectId}.${datasetId}.${tableId}\` AS target
         USING \`${projectId}.${datasetId}.${tempTableId}\` AS source
         ON target.view_id = source.view_id
+        WHEN MATCHED THEN
+          UPDATE SET
+            target.view_title = source.view_title,
+            target.view_content = source.view_content,
+            target.view_image = source.view_image,
+            target.view_memo = source.view_memo,
+            target.city = source.city,
+            target.tags = source.tags,
+            target.lat = source.lat,
+            target.lng = source.lng
         WHEN NOT MATCHED THEN
           INSERT (view_id, view_title, view_content, view_image, view_memo, city, tags, lat, lng)
           VALUES (source.view_id, source.view_title, source.view_content, source.view_image,
@@ -178,41 +189,96 @@ export class ViewService {
     }
   }
 
-  async updateView(row: ViewContent[]) {
-    console.log(
-      `[ view.service ] 準備 update 資料 ${row[0].view_id} 到 ITINERARY_VIEW_DB`,
-    );
-    try {
-      const query = `
-      UPDATE ${process.env.GOOGLE_CLOUD_PROJECT}.${process.env.BIGQUERY_DATASET}.ITINERARY_VIEW_DB
-      SET city = @city,
-          tags = @tags,
-          lat = @lat,
-          lng = @lng
-      WHERE view_id = @view_id
-    `;
+  // async updateView(rows: ViewContent[]) {
+  //   if (!rows || rows.length === 0) {
+  //     console.warn('[ view.service ] updateView 收到空批次。');
+  //     return {
+  //       success: true,
+  //       processedRows: 0,
+  //       affectedRows: 0,
+  //       operation: 'merge',
+  //     };
+  //   }
 
-      const [job] = await this.bigquery.createQueryJob({
-        query,
-        params: {
-          view_id: row[0].view_id,
-          city: row[0].city,
-          tags: row[0].tags,
-          lat: row[0].lat,
-          lng: row[0].lng,
-        },
-      });
+  //   // 1. 將輸入的資料陣列轉換成 BigQuery 可接受的結構陣列
+  //   const dataForMerge = rows.map((item) => ({
+  //     view_id: item.view_id,
+  //     city: item.city,
+  //     tags: item.tags,
+  //     lat: item.lat,
+  //     lng: item.lng,
+  //   }));
 
-      const [rows_affected] = await job.getQueryResults();
-      return {
-        success: true,
-        processedRows: 1,
-        affectedRows: rows_affected.length,
-        operation: 'update',
-      };
-    } catch (error) {
-      console.error('[ view.service ] BigQuery update 失敗:', error);
-      throw error;
-    }
-  }
+  //   console.log(dataForMerge);
+
+  //   // 2. 準備 MERGE 查詢
+  //   const query = `
+  //       MERGE INTO
+  //           ${process.env.GOOGLE_CLOUD_PROJECT}.${process.env.BIGQUERY_DATASET}.ITINERARY_VIEW_DB AS Target
+  //       USING
+  //           -- 將傳入的資料陣列 (dataForMerge) 作為臨時表 Source
+  //           UNNEST(@sourceData) AS Source
+  //       ON
+  //           Target.view_id = Source.view_id
+
+  //       -- 匹配到 view_id 時，執行更新
+  //       WHEN MATCHED THEN
+  //           UPDATE SET
+  //               Target.city = Source.city,
+  //               Target.tags = Source.tags,
+  //               Target.lat = Source.lat,
+  //               Target.lng = Source.lng
+
+  //       -- 如果沒有匹配到，則執行插入 (可選，但 MERGE 通常用於 Upsert)
+  //       WHEN NOT MATCHED THEN
+  //           INSERT (view_id, city, tags, lat, lng)
+  //           VALUES (Source.view_id, Source.city, Source.tags, Source.lat, Source.lng)
+  //   `;
+
+  //   try {
+  //     const [job] = await this.bigquery.createQueryJob({
+  //       query,
+  //       // 3. 傳遞整個批次的資料陣列
+  //       params: { sourceData: dataForMerge },
+  //       // 4. 定義 ARRAY/STRUCT 參數的類型 (關鍵步驟!)
+  //       types: [
+  //         {
+  //           name: 'sourceData',
+  //           type: 'ARRAY',
+  //           arrayType: {
+  //             type: 'STRUCT',
+  //             fields: [
+  //               { name: 'view_id', type: 'STRING' },
+  //               { name: 'city', type: 'STRING' },
+  //               {
+  //                 name: 'tags',
+  //                 type: 'ARRAY',
+  //                 arrayType: { type: 'STRING' },
+  //               },
+  //               { name: 'lat', type: 'FLOAT' },
+  //               { name: 'lng', type: 'FLOAT' },
+  //             ],
+  //           },
+  //         },
+  //       ],
+  //     });
+
+  //     // 等待並獲取結果
+  //     const [rows_affected] = await job.getQueryResults();
+
+  //     // MERGE 語句的結果是 rows_affected[0] 中的 totalRowsAffected
+  //     const summary =
+  //       rows_affected && rows_affected.length > 0 ? rows_affected[0] : null;
+
+  //     return {
+  //       success: true,
+  //       processedRows: rows.length,
+  //       affectedRows: summary?.totalRowsAffected || 0,
+  //       operation: 'merge',
+  //     };
+  //   } catch (error) {
+  //     console.error('[ view.service ] BigQuery 批次 MERGE 失敗:', error);
+  //     throw error;
+  //   }
+  // }
 }

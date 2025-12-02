@@ -92,7 +92,8 @@ async function fetchAI<T>(batch: T[], type: string): Promise<T[]> {
 // 主流程（處理傳入的資料）
 export async function dataEnrich<T>(data: T[], type: string): Promise<T[]> {
   console.log(
-    `[ common / utils / data_enrich ]  景點資料補足 (總數: ${data.length})`,
+    `[ common / utils / data_enrich ] 景點資料補足 (總數: ${data.length})`,
+    data,
   );
   const batchSize = 15;
 

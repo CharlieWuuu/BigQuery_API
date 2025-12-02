@@ -409,13 +409,28 @@ export class AppService {
     // 11. 確認哪些景點缺經緯度
     const viewIds = await this.viewService.queryViewNotEnrichedId();
 
-    for (const viewId of viewIds) {
-      // 12. 撈景點
-      const viewData = await this.viewService.queryView(viewId);
-      // 13.  AI 補經緯度
-      const viewEnriched = await dataEnrich([viewData], 'view');
-      // 14. 更新景點經緯度
-      await this.viewService.updateView(viewEnriched);
+    // 設定批次大小
+    const BATCH_SIZE = 5;
+
+    // 遍歷 viewIds 陣列，每次處理一個批次
+    for (let i = 0; i < viewIds.length; i += BATCH_SIZE) {
+      // 1. 取得當前批次的 view IDs
+      const batchIds = viewIds.slice(i, i + BATCH_SIZE);
+      console.log('[ app.service ] 處理景點經緯度 (批次:', i, ')', batchIds);
+
+      // 2. 撈景點 (並行處理)
+      const fetchPromises = await this.viewService.queryView(batchIds);
+
+      // 3. AI 補經緯度 (單次批次呼叫)
+      const viewEnriched = await dataEnrich(fetchPromises, 'view');
+
+      // 4. 更新景點經緯度 (單次批次更新)
+      await this.viewService.mergeView(viewEnriched);
+
+      // 記錄進度
+      console.log(
+        `[ app.service ] 已完成景點增強與批次更新：${i + 1} - ${Math.min(i + BATCH_SIZE, viewIds.length)} / 總數 ${viewIds.length}`,
+      );
     }
 
     return { status: '00', msg: 'Success' };
