@@ -428,8 +428,8 @@ export class AppService {
     return { status: '00', msg: 'Success' };
   }
 
-  // 每天凌晨 1 點自動執行
-  @Cron(CronExpression.EVERY_DAY_AT_1PM)
+  // 測試：下午 3:45 執行
+  @Cron('45 15 * * *')
   async handleCron() {
     await this.updateDataTourData(1, 20); // 參數可依需求調整
   }
