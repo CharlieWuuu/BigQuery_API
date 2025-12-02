@@ -3,6 +3,7 @@ import { ViewService } from './view.service';
 import { ApiOperation, ApiBody, ApiQuery } from '@nestjs/swagger';
 import { ViewDto } from 'src/common/dto/view.dto';
 import { dataEnrich } from 'src/common/utils/data_enrich';
+import { ViewContent } from 'src/common/type/itinerary.type';
 
 const rowData = [
   {
@@ -87,7 +88,7 @@ export class ViewController {
   //   return this.viewService.merge(body.data);
   // }
 
-  @Post('/itineraryBigquery')
+  @Post('/itineraryBigqueryMerge')
   @ApiOperation({ summary: '✅ 上傳資料到 BigQuery' })
   @ApiBody({
     description: `請貼上景點資料 JSON：`,
@@ -95,8 +96,21 @@ export class ViewController {
       example1: { summary: '測試用景點資料', value: { data: insertData } },
     },
   })
-  async mergeItinerary(@Body() body: { data: ViewDto[] }) {
+  async mergeView(@Body() body: { data: ViewDto[] }) {
     console.log('✅ 開始上傳資料到 BigQuery');
-    return this.viewService.mergeItinerary(body.data);
+    return this.viewService.mergeView(body.data);
+  }
+
+  @Post('/itineraryBigqueryUpdate')
+  @ApiOperation({ summary: '✅ 上傳資料到 BigQuery' })
+  @ApiBody({
+    description: `請貼上景點資料 JSON：`,
+    examples: {
+      example1: { summary: '測試用景點資料', value: { data: insertData } },
+    },
+  })
+  async updateView(@Body() body: { data: ViewContent[] }) {
+    console.log('✅ 開始上傳資料到 BigQuery');
+    return this.viewService.updateView(body.data);
   }
 }

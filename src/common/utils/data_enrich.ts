@@ -58,12 +58,14 @@ function generatePrompt<T>(data: T[], type: string): string {
 
 // 呼叫 AI - 處理一個批次
 async function fetchAI<T>(batch: T[], type: string): Promise<T[]> {
-  console.log(`\n--- 呼叫 Gemini API (批次大小: ${batch.length}) ---`);
+  console.log(
+    `[ common / utils / data_enrich ] 呼叫 Gemini API (批次大小: ${batch.length})`,
+  );
   const originalData = [...batch]; // 備份原資料
 
   try {
     const prompt = generatePrompt(batch, type);
-    console.log('[呼叫 Gemini API] 開始...');
+    console.log('[ common / utils / data_enrich ] 呼叫 Gemini API 開始...');
 
     // 用套件呼叫
     // NODE_TLS_REJECT_UNAUTHORIZED="0"
@@ -74,7 +76,7 @@ async function fetchAI<T>(batch: T[], type: string): Promise<T[]> {
     });
     const response = (await result.json()) as AiResponse;
     const text = response.data.text;
-    console.log(`[Gemini 已回傳]:`);
+    console.log(`[ common / utils / data_enrich ] Gemini 已回傳`);
 
     // 解析 JSON
     const jsonText = extractJsonFromMarkdown(text);
@@ -82,24 +84,30 @@ async function fetchAI<T>(batch: T[], type: string): Promise<T[]> {
 
     return enrichedData;
   } catch (e) {
-    console.warn(`[API 呼叫失敗] 批次: ${e}`);
+    console.warn(`[ common / utils / data_enrich ] API 呼叫失敗，批次: ${e}`);
     return originalData; // 失敗時回傳原資料
   }
 }
 
 // 主流程（處理傳入的資料）
 export async function dataEnrich<T>(data: T[], type: string): Promise<T[]> {
-  console.log(`\n--- 景點資料補足 (總數: ${data.length}) ---`);
+  console.log(
+    `[ common / utils / data_enrich ]  景點資料補足 (總數: ${data.length})`,
+  );
   const batchSize = 15;
 
   // 如果資料量小於等於 batchSize，直接處理
   if (data.length <= batchSize) {
-    console.log(`資料量 ${data.length} 筆，直接處理`);
+    console.log(
+      `[ common / utils / data_enrich ] 資料量 ${data.length} 筆，直接處理`,
+    );
     return await fetchAI(data, type);
   }
 
   // 如果資料量大，分批處理
-  console.log(`資料量 ${data.length} 筆，需要分批處理 (每批 ${batchSize} 筆)`);
+  console.log(
+    `[ common / utils / data_enrich ] 資料量 ${data.length} 筆，需要分批處理 (每批 ${batchSize} 筆)`,
+  );
   let viewEnriched: T[] = [];
 
   for (let i = 0; i < data.length; i += batchSize) {
@@ -118,6 +126,6 @@ export async function dataEnrich<T>(data: T[], type: string): Promise<T[]> {
     }
   }
 
-  console.log('\n--- AI補足完成 ---');
+  console.log(`[ common / utils / data_enrich ]  AI補足完成`);
   return viewEnriched;
 }

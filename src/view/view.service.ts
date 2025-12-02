@@ -24,7 +24,7 @@ export class ViewService {
         query: `
         SELECT view_id
         FROM ${process.env.GOOGLE_CLOUD_PROJECT}.${process.env.BIGQUERY_DATASET}.ITINERARY_VIEW_DB
-        WHERE city IS NULL OR city = ""
+        WHERE lat = 0 OR lng = 0
         `,
       });
 
@@ -117,7 +117,7 @@ export class ViewService {
   //   }
   // }
 
-  async mergeItinerary(rows: ViewDto[]) {
+  async mergeView(rows: ViewDto[]) {
     try {
       const projectId = process.env.GOOGLE_CLOUD_PROJECT;
       const datasetId = process.env.BIGQUERY_DATASET as string;
@@ -174,6 +174,44 @@ export class ViewService {
       };
     } catch (error) {
       console.error('[ view.service ] BigQuery merge 失敗:', error);
+      throw error;
+    }
+  }
+
+  async updateView(row: ViewContent[]) {
+    console.log(
+      `[ view.service ] 準備 update 資料 ${row[0].view_id} 到 ITINERARY_VIEW_DB`,
+    );
+    try {
+      const query = `
+      UPDATE ${process.env.GOOGLE_CLOUD_PROJECT}.${process.env.BIGQUERY_DATASET}.ITINERARY_VIEW_DB
+      SET city = @city,
+          tags = @tags,
+          lat = @lat,
+          lng = @lng
+      WHERE view_id = @view_id
+    `;
+
+      const [job] = await this.bigquery.createQueryJob({
+        query,
+        params: {
+          view_id: row[0].view_id,
+          city: row[0].city,
+          tags: row[0].tags,
+          lat: row[0].lat,
+          lng: row[0].lng,
+        },
+      });
+
+      const [rows_affected] = await job.getQueryResults();
+      return {
+        success: true,
+        processedRows: 1,
+        affectedRows: rows_affected.length,
+        operation: 'update',
+      };
+    } catch (error) {
+      console.error('[ view.service ] BigQuery update 失敗:', error);
       throw error;
     }
   }

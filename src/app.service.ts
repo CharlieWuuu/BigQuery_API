@@ -11,6 +11,7 @@ import { ViewService } from './view/view.service';
 import axios from 'axios';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { dataEnrich } from './common/utils/data_enrich';
+import { ViewContent } from './common/type/itinerary.type';
 
 let pagecount: number = 0;
 function formatDate(date: Date): string {
@@ -391,7 +392,7 @@ export class AppService {
 
           // 10. 上傳景點（只上傳新資料）
           if (viewData.length > 0) {
-            await this.viewService.mergeItinerary(viewData);
+            await this.viewService.mergeView(viewData);
           }
         }
       } catch (error) {
@@ -414,14 +415,14 @@ export class AppService {
       // 13.  AI 補經緯度
       const viewEnriched = await dataEnrich([viewData], 'view');
       // 14. 更新景點經緯度
-      await this.viewService.mergeItinerary(viewEnriched);
+      await this.viewService.updateView(viewEnriched);
     }
 
     return { status: '00', msg: 'Success' };
   }
 
   // 每天凌晨 1 點自動執行
-  @Cron(CronExpression.EVERY_DAY_AT_1AM)
+  @Cron(CronExpression.EVERY_DAY_AT_1PM)
   async handleCron() {
     await this.updateDataTourData(1, 20); // 參數可依需求調整
   }
