@@ -9,7 +9,10 @@ export class AiService {
   private credentialJson = JSON.parse(this.jsonString) as GoogleCredentialJson;
 
   async ai(requirement: string, preamble: string): Promise<any> {
-    console.log('🤖 開始呼叫 Google Discovery Engine AI，需求：', requirement);
+    console.log(
+      '[ ai.service ] 開始呼叫 Google Discovery Engine AI，需求：',
+      requirement,
+    );
 
     try {
       // 設定 Google Auth 並取得 Access Token
@@ -21,7 +24,7 @@ export class AiService {
       const client = await auth.getClient();
       const accessTokenResponse = await client.getAccessToken();
       const accessToken = accessTokenResponse.token;
-      console.log('🔑 取得 access token');
+      console.log('[ ai.service ] 取得 access token');
 
       // 設定 Vertex AI Discovery Engine API 請求參數
       const targetProjectId = process.env.VERTEX_AI_PROJECT_ID; // 引擎所在的專案
@@ -44,7 +47,7 @@ export class AiService {
       };
 
       // 發送 API 請求
-      console.log('📡 準備發送 Discovery Engine API 請求...');
+      console.log('[ ai.service ] 準備發送 Discovery Engine API 請求...');
       const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -64,14 +67,14 @@ export class AiService {
       try {
         answerJson = JSON.parse(answerTextClean);
       } catch (e) {
-        console.error('❌ 解析 answerText 失敗:', e);
+        console.error('[ ai.service ] 解析 answerText 失敗:', e);
       }
 
       console.log(answerJson);
-      console.log('🎉 AI 回應處理完成');
+      console.log('[ ai.service ] AI 回應處理完成');
       return { status: '00', msg: 'Success', data: answerJson };
     } catch (error) {
-      console.error('❌ AI Service 錯誤:', error);
+      console.error('[ ai.service ] AI Service 錯誤:', error);
       return { success: false, error: (error as Error).message };
     }
   }

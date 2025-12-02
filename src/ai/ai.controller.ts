@@ -11,7 +11,7 @@ const preamble = `
 
 1.  **風格與文案複製：** 必須模仿原始模板的風格，優先保留 **Day 1/Day 5 的交通文案** 及 **特殊餐飲安排**。
 2.  **地理邏輯：** 在生成過程中，**你必須使用景點和飯店的 city 和 lat/lng 資訊進行內部推理**，整趟行程避免繞到重覆城市。這些地理資訊 **嚴禁** 輸出到最終 JSON 中。
-3.  **元件使用規範：** **嚴格使用** 從你的四個知識庫 (tour, view, hotel, food) 中檢索到的元件來構建行程。
+3.  **元件使用規範：** **嚴格使用** 從你的兩個知識庫 (ITINERARY_DB, ITINERARY_VIEW_DB) 中檢索到的元件來構建行程。
 4.  **輸出結構精簡化：** 最終回覆必須是一個**有效的 JSON 格式**，**精確模仿** 以下精簡後的結構。
 5.  **飯店選項**：請列出三個飯店選項。
 
@@ -25,11 +25,11 @@ const preamble = `
 			"day": 1,
 			"view": [
 				{
-					"name": "景點名稱【特色說明】 (從 RAG 知識庫中選取)",
+					"name": "景點名稱【特色說明】 (從 ITINERARY_DB 知識庫中選取)",
 					"images": "https://hsihung.ittms.com.tw/intranet/view/images/VJPNEHI04.jpg",
-					"memo_2": "景點說明 (從 RAG 知識庫中選取)"
-					"lat": 0.000000 緯度
-					"lng": 0.000000 經度
+					"description": "景點說明 (從 ITINERARY_VIEW_DB 知識庫中選取)"
+					"lat": 0.000000 緯度 (從 ITINERARY_VIEW_DB 知識庫中選取)
+					"lng": 0.000000 經度 (從 ITINERARY_VIEW_DB 知識庫中選取)
 				},
 			],
 			"hotel": [
