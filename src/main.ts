@@ -10,6 +10,11 @@ dotenv.config();
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.enableCors({
+    origin: 'http://localhost:3000',
+    credentials: true, // 允許前端攜帶 Cookies 或授權資訊
+  });
+
   const expressApp = app.getHttpAdapter().getInstance() as Express;
   expressApp.set('trust proxy', 1);
 
@@ -18,8 +23,8 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('BigQuery API')
-    .setDescription('API 文件')
-    .setVersion('1.0')
+    .setDescription('API 文件 - 1.3')
+    .setVersion('1.3')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);

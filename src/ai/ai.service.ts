@@ -68,6 +68,7 @@ export class AiService {
         answerJson = JSON.parse(answerTextClean);
       } catch (e) {
         console.error('[ ai.service ] 解析 answerText 失敗:', e);
+        console.error('[ ai.service ] 原始回應:', result);
       }
 
       console.log(answerJson);
@@ -77,10 +78,5 @@ export class AiService {
       console.error('[ ai.service ] AI Service 錯誤:', error);
       return { success: false, error: (error as Error).message };
     }
-  }
-
-  async ai_tour(text: string): Promise<any> {
-    await this.ai(text, '請你親切地回答我的問題');
-    return '預計吐回 AI 產生的行程資料';
   }
 }
