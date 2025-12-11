@@ -23,8 +23,8 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('BigQuery API')
-    .setDescription('API 文件 - 1.7')
-    .setVersion('1.7')
+    .setDescription('API 文件 - 2.0')
+    .setVersion('2.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);

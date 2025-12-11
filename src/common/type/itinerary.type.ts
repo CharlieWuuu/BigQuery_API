@@ -49,6 +49,8 @@ export interface ItineraryDetail {
   travel_image_url: string;
   travel_abstract: string;
   travel_city: string;
+  travel_title_1: string;
+  travel_title_2: string;
   price_adult: number;
   order_person: number;
   unpay_person: number;

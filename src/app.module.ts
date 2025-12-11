@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { BigqueryModule } from './bigquery/bigquery.module';
 import { ScheduleModule as MyScheduleModule } from './schedule/schedule.module';
 import { ViewModule } from './view/view.module';
 import { QuerylistModule } from './querylist/querylist.module';
@@ -13,7 +12,6 @@ import { ViewService } from './view/view.service';
 
 @Module({
   imports: [
-    BigqueryModule,
     ViewModule,
     MyScheduleModule,
     QuerylistModule,
